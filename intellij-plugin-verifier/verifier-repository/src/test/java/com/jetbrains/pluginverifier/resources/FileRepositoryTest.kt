@@ -267,6 +267,10 @@ class FileRepositoryTest {
         result.writeText((nextText++).toString())
         return DownloadResult.Downloaded(result, "txt", false)
       }
+
+      override fun downloadFile(key: Unit, targetPath: Path): DownloadResult {
+        TODO("Not yet implemented")
+      }
     }
     val downloadProvider = DownloadProvider(downloadDir, downloader) { "a" }
 

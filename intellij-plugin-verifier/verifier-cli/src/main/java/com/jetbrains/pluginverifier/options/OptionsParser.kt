@@ -18,6 +18,7 @@ import com.jetbrains.pluginverifier.output.OutputOptions
 import com.jetbrains.pluginverifier.output.teamcity.TeamCityHistory
 import com.jetbrains.pluginverifier.output.teamcity.TeamCityLog
 import com.jetbrains.pluginverifier.output.teamcity.TeamCityResultPrinter
+import com.jetbrains.pluginverifier.plugin.api.PluginApiJarDownloader
 import com.jetbrains.pluginverifier.repository.downloader.DownloadResult
 import com.jetbrains.pluginverifier.verifiers.packages.DefaultPackageFilter
 import com.jetbrains.pluginverifier.verifiers.packages.PackageFilter
@@ -63,12 +64,13 @@ object OptionsParser {
   }
 
   fun createIdeDescriptor(ide: String, opts: CmdOpts): IdeDescriptor {
-    val ideFile = if (ide.startsWith("[") && ide.endsWith("]")) {
-      downloadIde(ide)
+    val path = Paths.get(ide)
+    val ideFile = if (!Files.exists(path)) {
+      downloadPluginApiJar(ide)
     } else {
-      Paths.get(ide)
+      path
     }
-    require(ideFile.isDirectory) { "IDE must reside in a directory: $ideFile" }
+//    require(ideFile.isDirectory) { "IDE must reside in a directory: $ideFile" }
     LOG.info("Reading IDE from $ideFile")
     return createIdeDescriptor(ideFile, opts)
   }
@@ -99,6 +101,29 @@ object OptionsParser {
       return downloadIde(productCode, ReleaseIdeRepository(), false)
     }
     throw IllegalArgumentException("IDE pattern does not match any of: ${ideLatestRegexp.pattern}, ${ideLatestReleaseRegexp.pattern}")
+  }
+
+  private fun downloadPluginApiJar(version: String): Path {
+    return downloadJar("https://repo1.maven.org/maven2/org/sonarsource/api/plugin/sonar-plugin-api/$version", "sonar-plugin-api-$version.jar")
+  }
+
+  private fun downloadJar(baseUrl: String, jarName: String): Path {
+    val downloadDirectory = System.getProperty("intellij.plugin.verifier.download.ide.temp.dir")?.let { Paths.get(it) }
+      ?: Path.of(System.getProperty("java.io.tmpdir")).resolve("downloaded-ides")
+
+    val jarLocalPath = downloadDirectory.resolve(jarName)
+    if (Files.exists(jarLocalPath)) {
+      LOG.info("$jarName is already downloaded to $downloadDirectory")
+      return jarLocalPath
+    }
+
+    val jarUrl = "$baseUrl/$jarName"
+    LOG.info("Downloading $jarUrl from Repox")
+    return when (val downloadResult = PluginApiJarDownloader().downloadFile(jarUrl, jarLocalPath)) {
+      is DownloadResult.Downloaded -> jarLocalPath
+      is DownloadResult.NotFound -> throw IllegalArgumentException("No JAR found at $jarUrl")
+      is DownloadResult.FailedToDownload -> throw RuntimeException("Failed to download JAR", downloadResult.error)
+    }
   }
 
   private fun downloadIde(

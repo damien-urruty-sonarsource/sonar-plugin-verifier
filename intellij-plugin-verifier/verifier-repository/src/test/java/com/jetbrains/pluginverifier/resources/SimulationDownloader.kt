@@ -12,4 +12,8 @@ class SimulationDownloader(private val timeConsumer: () -> Unit = {}) : Download
     file.writeText(key.toString())
     return DownloadResult.Downloaded(file, "", false)
   }
+
+  override fun downloadFile(key: Int, targetPath: Path): DownloadResult {
+    TODO("Not yet implemented")
+  }
 }

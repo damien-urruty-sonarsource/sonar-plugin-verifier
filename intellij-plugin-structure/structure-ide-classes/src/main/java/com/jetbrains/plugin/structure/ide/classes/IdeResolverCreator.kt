@@ -18,7 +18,10 @@ import java.nio.file.Path
 object IdeResolverCreator {
 
   @JvmStatic
-  fun createIdeResolver(ide: Ide): Resolver = createIdeResolver(Resolver.ReadMode.FULL, ide)
+  fun createIdeResolver(ide: Ide): Resolver {
+    val fileOrigin = JarOrZipFileOrigin(ide.idePath.simpleName, IdeFileOrigin.IdeLibDirectory(ide))
+    return JarFileResolver(ide.idePath, Resolver.ReadMode.FULL, fileOrigin)
+  }
 
   @JvmStatic
   fun createIdeResolver(readMode: Resolver.ReadMode, ide: Ide): Resolver {

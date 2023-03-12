@@ -32,4 +32,8 @@ class OnlyOneDownloadAtTimeDownloader : Downloader<Int> {
   private fun doDownload() {
     Thread.sleep(1000)
   }
+
+  override fun downloadFile(key: Int, targetPath: Path): DownloadResult {
+    TODO("Not yet implemented")
+  }
 }

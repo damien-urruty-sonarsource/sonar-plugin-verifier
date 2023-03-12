@@ -22,7 +22,7 @@ import java.nio.file.Path
 
 class IdeManagerImpl : IdeManager() {
 
-  override fun createIde(idePath: Path): Ide = createIde(idePath, null)
+  override fun createIde(idePath: Path): Ide = IdeImpl(idePath, IdeVersion.createIdeVersion("2099.1"), emptyList())
 
   override fun createIde(idePath: Path, version: IdeVersion?): Ide {
     if (!idePath.isDirectory) {

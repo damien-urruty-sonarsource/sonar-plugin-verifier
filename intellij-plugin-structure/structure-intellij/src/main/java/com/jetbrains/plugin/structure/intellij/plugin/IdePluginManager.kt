@@ -49,25 +49,25 @@ class IdePluginManager private constructor(
     }
     try {
       zipFs.use { jarFileSystem ->
-        val entryName = "$META_INF/$descriptorPath"
-        val entry = jarFileSystem.getPath(toCanonicalPath(entryName))
-        return if (Files.exists(entry)) {
+//        val entryName = "$META_INF/$descriptorPath"
+//        val entry = jarFileSystem.getPath(toCanonicalPath(entryName))
+//        return if (Files.exists(entry)) {
           try {
-            val document = Files.newInputStream(entry).use { JDOMUtil.loadDocument(it) }
-            val icons = getIconsFromJarFile(jarFileSystem)
-            val dependencies = getThirdPartyDependenciesFromJarFile(jarFileSystem)
-            val plugin = createPlugin(jarFile, descriptorPath, parentPlugin, validateDescriptor, document, entry, resourceResolver)
-            plugin.setIcons(icons)
-            plugin.setThirdPartyDependencies(dependencies)
-            plugin
+//            val document = Files.newInputStream(entry).use { JDOMUtil.loadDocument(it) }
+//            val icons = getIconsFromJarFile(jarFileSystem)
+//            val dependencies = getThirdPartyDependenciesFromJarFile(jarFileSystem)
+            val plugin = createPlugin(jarFile, descriptorPath, null, validateDescriptor, null, null, null)
+//            plugin.setIcons(icons)
+//            plugin.setThirdPartyDependencies(dependencies)
+            return plugin
           } catch (e: Exception) {
             LOG.info("Unable to read file $descriptorPath", e)
             val message = e.localizedMessage
-            createInvalidPlugin(jarFile, descriptorPath, UnableToReadDescriptor(descriptorPath, message))
+            return createInvalidPlugin(jarFile, descriptorPath, UnableToReadDescriptor(descriptorPath, message))
           }
-        } else {
-          createInvalidPlugin(jarFile, descriptorPath, PluginDescriptorIsNotFound(descriptorPath))
-        }
+//        } else {
+//          createInvalidPlugin(jarFile, descriptorPath, PluginDescriptorIsNotFound(descriptorPath))
+//        }
       }
     } catch (e: Exception) {
       LOG.warn("Unable to read $jarFile in search of $descriptorPath: ${e.message}")

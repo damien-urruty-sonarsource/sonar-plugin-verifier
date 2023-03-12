@@ -102,10 +102,33 @@ class UrlDownloader<in K>(private val urlProvider: (K) -> URL?) : Downloader<K> 
     return downloadByUrl(key, downloadUrl, tempDirectory)
   }
 
+  override fun downloadFile(key: K, targetPath: Path): DownloadResult {
+    val downloadUrl = try {
+      urlProvider(key)
+    } catch (e: Exception) {
+      e.rethrowIfInterrupted()
+      return DownloadResult.FailedToDownload("Invalid URL", e)
+    } ?: return DownloadResult.NotFound("Unknown URL for $key")
+
+    return downloadFileByUrl(key, downloadUrl, targetPath)
+  }
+
   private fun downloadByUrl(key: K, downloadUrl: URL, tempDirectory: Path): DownloadResult {
     checkIfInterrupted()
     return try {
       doDownload(key, downloadUrl, tempDirectory)
+    } catch (e: NotFound404ResponseException) {
+      DownloadResult.NotFound("Resource is not found by $downloadUrl")
+    } catch (e: Exception) {
+      e.rethrowIfInterrupted()
+      DownloadResult.FailedToDownload("Unable to download $key: ${e.message}", e)
+    }
+  }
+
+  private fun downloadFileByUrl(key: K, downloadUrl: URL, targetPath: Path): DownloadResult {
+    checkIfInterrupted()
+    return try {
+      doDownloadFile(key, downloadUrl, targetPath)
     } catch (e: NotFound404ResponseException) {
       DownloadResult.NotFound("Resource is not found by $downloadUrl")
     } catch (e: Exception) {
@@ -122,11 +145,25 @@ class UrlDownloader<in K>(private val urlProvider: (K) -> URL?) : Downloader<K> 
     }
   }
 
+  private fun doDownloadFile(key: K, downloadUrl: URL, targetPath: Path): DownloadResult {
+    return when (val protocol = downloadUrl.protocol) {
+      FILE_PROTOCOL -> copyToPath(downloadUrl, targetPath)
+      HTTP_PROTOCOL, HTTPS_PROTOCOL -> downloadFile(downloadUrl, targetPath, key)
+      else -> throw IllegalArgumentException("Unknown protocol: $protocol of $downloadUrl")
+    }
+  }
+
   private fun copyFileOrDirectory(downloadUrl: URL, tempDirectory: Path): DownloadResult.Downloaded {
     val original = FileUtils.toFile(downloadUrl).toPath()
     val destination = tempDirectory.resolve(original.simpleName)
     original.toFile().copyRecursively(destination.toFile())
     return DownloadResult.Downloaded(destination, destination.extension, destination.isDirectory)
+  }
+
+  private fun copyToPath(downloadUrl: URL, targetPath: Path): DownloadResult.Downloaded {
+    val original = FileUtils.toFile(downloadUrl).toPath()
+    original.toFile().copyRecursively(targetPath.toFile())
+    return DownloadResult.Downloaded(targetPath, targetPath.extension, targetPath.isDirectory)
   }
 
   private fun downloadFileOrDirectory(downloadUrl: URL, tempDirectory: Path, key: K): DownloadResult {
@@ -141,6 +178,14 @@ class UrlDownloader<in K>(private val urlProvider: (K) -> URL?) : Downloader<K> 
       downloadedTempFile.deleteLogged()
       throw e
     }
+  }
+
+  private fun downloadFile(downloadUrl: URL, targetPath: Path, key: K): DownloadResult {
+    val response = downloadConnector.download(downloadUrl.toExternalForm()).executeSuccessfully()
+    val extension = response.guessExtension()
+    LOG.debug("Downloading $key to $targetPath")
+    copyResponseTo(response, targetPath)
+    return DownloadResult.Downloaded(targetPath, extension, false)
   }
 
   private fun copyResponseTo(response: Response<ResponseBody>, file: Path) {

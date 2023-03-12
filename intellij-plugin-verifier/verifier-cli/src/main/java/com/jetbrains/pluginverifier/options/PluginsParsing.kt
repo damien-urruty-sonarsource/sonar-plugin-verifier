@@ -133,7 +133,7 @@ class PluginsParsing(
     }
 
     if (pluginFile != null) {
-      addPluginFile(pluginFile, true)
+      addPluginFile(pluginFile, false)
     } else {
       ideVersions.forEach { addAllCompatibleVersionsOfPlugin(spec, it) }
     }

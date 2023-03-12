@@ -20,4 +20,13 @@ interface Downloader<in K> {
    */
   @Throws(InterruptedException::class)
   fun download(key: K, tempDirectory: Path): DownloadResult
+
+  /**
+   * Downloads a file and saves it at targetPath.
+   *
+   * @throws InterruptedException if the current thread has been
+   * interrupted while downloading the resource.
+   */
+  @Throws(InterruptedException::class)
+  fun downloadFile(key: K, targetPath: Path): DownloadResult
 }

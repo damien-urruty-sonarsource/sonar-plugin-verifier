@@ -65,11 +65,11 @@ public class PluginXmlUtil {
 
   @NotNull
   public static Set<String> getAllClassesReferencedFromXml(IdePlugin plugin) {
-    Document document = plugin.getUnderlyingDocument();
-    Element rootElement = document.getRootElement();
-    if (rootElement != null) {
-      return extractReferencedClasses(rootElement);
-    }
+//    Document document = plugin.getUnderlyingDocument();
+//    Element rootElement = document.getRootElement();
+//    if (rootElement != null) {
+//      return extractReferencedClasses(rootElement);
+//    }
     return Collections.emptySet();
   }
 }

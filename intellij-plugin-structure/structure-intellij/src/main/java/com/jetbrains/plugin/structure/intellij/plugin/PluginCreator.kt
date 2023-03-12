@@ -65,9 +65,9 @@ internal class PluginCreator private constructor(
       descriptorPath: String,
       parentPlugin: PluginCreator?,
       validateDescriptor: Boolean,
-      document: Document,
-      documentPath: Path,
-      pathResolver: ResourceResolver
+      document: Document?,
+      documentPath: Path?,
+      pathResolver: ResourceResolver?
     ) = createPlugin(
       pluginFile.simpleName, descriptorPath, parentPlugin, validateDescriptor, document, documentPath, pathResolver
     )
@@ -78,14 +78,16 @@ internal class PluginCreator private constructor(
       descriptorPath: String,
       parentPlugin: PluginCreator?,
       validateDescriptor: Boolean,
-      document: Document,
-      documentPath: Path,
-      pathResolver: ResourceResolver
+      document: Document?,
+      documentPath: Path?,
+      pathResolver: ResourceResolver?
     ): PluginCreator {
       val pluginCreator = PluginCreator(pluginFileName, descriptorPath, parentPlugin)
-      pluginCreator.resolveDocumentAndValidateBean(
-        document, documentPath, descriptorPath, pathResolver, validateDescriptor
-      )
+      pluginCreator.plugin.pluginId = "id"
+      pluginCreator.plugin.pluginVersion = "99.9"
+//      pluginCreator.resolveDocumentAndValidateBean(
+//        document, documentPath, descriptorPath, pathResolver, validateDescriptor
+//      )
       return pluginCreator
     }
 

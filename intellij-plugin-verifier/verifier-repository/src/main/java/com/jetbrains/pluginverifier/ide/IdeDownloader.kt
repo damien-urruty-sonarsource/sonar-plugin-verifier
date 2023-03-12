@@ -138,4 +138,8 @@ class IdeDownloader : Downloader<AvailableIde> {
     }
   }
 
+  override fun downloadFile(key: AvailableIde, targetPath: Path): DownloadResult {
+    TODO("Not yet implemented")
+  }
+
 }
