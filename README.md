@@ -1,3 +1,5 @@
+> :warning: This project is an experiment, it is not production-ready!
+
 # intellij-plugin-verifier
 
 [![official JetBrains project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
