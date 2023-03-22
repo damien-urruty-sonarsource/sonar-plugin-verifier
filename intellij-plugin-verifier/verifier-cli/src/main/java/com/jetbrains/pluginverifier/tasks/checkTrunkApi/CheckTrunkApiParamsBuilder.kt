@@ -7,11 +7,11 @@ package com.jetbrains.pluginverifier.tasks.checkTrunkApi
 import com.jetbrains.plugin.structure.base.utils.closeOnException
 import com.jetbrains.plugin.structure.base.utils.isDirectory
 import com.jetbrains.plugin.structure.base.utils.listPresentationInColumns
-import com.jetbrains.plugin.structure.ide.Ide
+import com.jetbrains.plugin.structure.ide.SonarPluginApi
 import com.jetbrains.pluginverifier.PluginVerificationDescriptor
 import com.jetbrains.pluginverifier.PluginVerificationTarget
 import com.jetbrains.pluginverifier.dependencies.resolution.*
-import com.jetbrains.pluginverifier.ide.IdeDescriptor
+import com.jetbrains.pluginverifier.ide.SonarPluginApiDescriptor
 import com.jetbrains.pluginverifier.misc.retry
 import com.jetbrains.pluginverifier.options.CmdOpts
 import com.jetbrains.pluginverifier.options.OptionsParser
@@ -23,9 +23,9 @@ import com.jetbrains.pluginverifier.repository.PluginInfo
 import com.jetbrains.pluginverifier.repository.PluginRepository
 import com.jetbrains.pluginverifier.repository.files.FileLock
 import com.jetbrains.pluginverifier.repository.files.IdleFileLock
+import com.jetbrains.pluginverifier.repository.repositories.artifactory.PluginArtifact
 import com.jetbrains.pluginverifier.repository.repositories.empty.EmptyPluginRepository
 import com.jetbrains.pluginverifier.repository.repositories.local.LocalPluginRepositoryFactory
-import com.jetbrains.pluginverifier.repository.repositories.marketplace.UpdateInfo
 import com.jetbrains.pluginverifier.resolution.DefaultClassResolverProvider
 import com.jetbrains.pluginverifier.tasks.TaskParametersBuilder
 import com.sampullara.cli.Args
@@ -44,13 +44,13 @@ class CheckTrunkApiParamsBuilder(
     require(args.isNotEmpty()) { "The IDE to be checked is not specified" }
 
     reportage.logVerificationStage("Preparing the trunk IDE ${args[0]}")
-    val trunkIdeDescriptor = OptionsParser.createIdeDescriptor(args[0], opts)
+    val trunkIdeDescriptor = OptionsParser.createSonarPluginApiDescriptor(args[0], opts)
     return trunkIdeDescriptor.closeOnException {
       buildParameters(opts, apiOpts, trunkIdeDescriptor)
     }
   }
 
-  private fun buildParameters(opts: CmdOpts, apiOpts: CheckTrunkApiOpts, trunkIdeDescriptor: IdeDescriptor): CheckTrunkApiParams {
+  private fun buildParameters(opts: CmdOpts, apiOpts: CheckTrunkApiOpts, trunkIdeDescriptor: SonarPluginApiDescriptor): CheckTrunkApiParams {
     val releaseIdeFileLock: FileLock
 
     val majorIdePath = requireNotNull(apiOpts.majorIdePath) { "-mip --major-ide-path option is not specified" }
@@ -59,7 +59,7 @@ class CheckTrunkApiParamsBuilder(
     releaseIdeFileLock = IdleFileLock(majorPath)
 
     reportage.logVerificationStage("Reading classes of the release IDE ${releaseIdeFileLock.file}")
-    val releaseIdeDescriptor = OptionsParser.createIdeDescriptor(releaseIdeFileLock.file, opts)
+    val releaseIdeDescriptor = OptionsParser.createSonarPluginApiDescriptor(releaseIdeFileLock.file, opts)
     return releaseIdeDescriptor.closeOnException {
       releaseIdeFileLock.closeOnException {
         buildParameters(opts, apiOpts, releaseIdeDescriptor, trunkIdeDescriptor, releaseIdeFileLock)
@@ -68,11 +68,11 @@ class CheckTrunkApiParamsBuilder(
   }
 
   private fun buildParameters(
-    opts: CmdOpts,
-    apiOpts: CheckTrunkApiOpts,
-    releaseIdeDescriptor: IdeDescriptor,
-    trunkIdeDescriptor: IdeDescriptor,
-    releaseIdeFileLock: FileLock
+      opts: CmdOpts,
+      apiOpts: CheckTrunkApiOpts,
+      releaseIdeDescriptor: SonarPluginApiDescriptor,
+      trunkIdeDescriptor: SonarPluginApiDescriptor,
+      releaseIdeFileLock: FileLock
   ): CheckTrunkApiParams {
     val externalClassesPackageFilter = OptionsParser.getExternalClassesPackageFilter(opts)
     val problemsFilters = OptionsParser.getProblemsFilters(opts)
@@ -85,14 +85,14 @@ class CheckTrunkApiParamsBuilder(
       ?.let { LocalPluginRepositoryFactory.createLocalPluginRepository(Paths.get(it)) }
       ?: EmptyPluginRepository
 
-    val message = "Requesting a list of plugins compatible with the release IDE ${releaseIdeDescriptor.ideVersion}"
+    val message = "Requesting a list of plugins compatible with the release IDE ${releaseIdeDescriptor.version}"
     reportage.logVerificationStage(message)
     val releaseCompatibleVersions = pluginRepository.retry(message) {
-      getLastCompatiblePlugins(releaseIdeDescriptor.ideVersion)
+      getLastCompatiblePlugins(releaseIdeDescriptor.version)
     }
 
     val releaseIgnoreInLocalRepositoryFilter = IgnorePluginsAvailableInOtherRepositoryFilter(releaseLocalRepository)
-    val releaseBundledFilter = IgnoreBundledPluginsFilter(releaseIdeDescriptor.ide)
+    val releaseBundledFilter = IgnoreBundledPluginsFilter(releaseIdeDescriptor.sonarPluginApi)
 
     val releasePluginsSet = PluginsSet()
     releasePluginsSet.addPluginFilter(releaseIgnoreInLocalRepositoryFilter)
@@ -101,7 +101,7 @@ class CheckTrunkApiParamsBuilder(
     releasePluginsSet.schedulePlugins(releaseCompatibleVersions)
 
     val trunkIgnoreInLocalRepositoryFilter = IgnorePluginsAvailableInOtherRepositoryFilter(trunkLocalRepository)
-    val trunkBundledFilter = IgnoreBundledPluginsFilter(trunkIdeDescriptor.ide)
+    val trunkBundledFilter = IgnoreBundledPluginsFilter(trunkIdeDescriptor.sonarPluginApi)
 
     val trunkPluginsSet = PluginsSet()
     trunkPluginsSet.addPluginFilter(trunkIgnoreInLocalRepositoryFilter)
@@ -114,9 +114,9 @@ class CheckTrunkApiParamsBuilder(
     //This is in order to check if found compatibility problems are also present in the latest version.
     val latestCompatibleVersions = arrayListOf<PluginInfo>()
     for (pluginInfo in releaseCompatibleVersions) {
-      if (!pluginInfo.isCompatibleWith(trunkIdeDescriptor.ideVersion)) {
+      if (!pluginInfo.isCompatibleWith(trunkIdeDescriptor.version)) {
         val lastCompatibleVersion = runCatching {
-          pluginRepository.getLastCompatibleVersionOfPlugin(trunkIdeDescriptor.ideVersion, pluginInfo.pluginId)
+          pluginRepository.getLastCompatibleVersionOfPlugin(trunkIdeDescriptor.version, pluginInfo.pluginId)
         }.getOrNull()
         if (lastCompatibleVersion != null && lastCompatibleVersion != pluginInfo) {
           latestCompatibleVersions += lastCompatibleVersion
@@ -125,10 +125,10 @@ class CheckTrunkApiParamsBuilder(
     }
     trunkPluginsSet.schedulePlugins(latestCompatibleVersions)
 
-    val releasePluginsToCheck = releasePluginsSet.pluginsToCheck.sortedBy { (it as UpdateInfo).updateId }
+    val releasePluginsToCheck = releasePluginsSet.pluginsToCheck.sortedBy { (it as PluginArtifact).updateId }
     if (releasePluginsToCheck.isNotEmpty()) {
       reportage.logVerificationStage(
-        "The following updates will be checked with both ${trunkIdeDescriptor.ideVersion} and #${releaseIdeDescriptor.ideVersion}:\n" +
+        "The following updates will be checked with both ${trunkIdeDescriptor.version} and #${releaseIdeDescriptor.version}:\n" +
           releasePluginsToCheck
             .listPresentationInColumns(4, 60)
       )
@@ -137,12 +137,12 @@ class CheckTrunkApiParamsBuilder(
     val trunkLatestPluginsToCheck = latestCompatibleVersions.filter { trunkPluginsSet.shouldVerifyPlugin(it) }
     if (trunkLatestPluginsToCheck.isNotEmpty()) {
       reportage.logVerificationStage(
-        "The following updates will be checked with ${trunkIdeDescriptor.ideVersion} only for comparison with the release versions of the same plugins:\n" +
+        "The following updates will be checked with ${trunkIdeDescriptor.version} only for comparison with the release versions of the same plugins:\n" +
           trunkLatestPluginsToCheck.listPresentationInColumns(4, 60)
       )
     }
 
-    val releaseFinder = createDependencyFinder(releaseIdeDescriptor.ide, releaseIdeDescriptor.ide, releaseLocalRepository, pluginDetailsCache)
+    val releaseFinder = createDependencyFinder(releaseIdeDescriptor.sonarPluginApi, releaseIdeDescriptor.sonarPluginApi, releaseLocalRepository, pluginDetailsCache)
     val releaseResolverProvider = DefaultClassResolverProvider(
       releaseFinder,
       releaseIdeDescriptor,
@@ -152,7 +152,7 @@ class CheckTrunkApiParamsBuilder(
       PluginVerificationDescriptor.IDE(releaseIdeDescriptor, releaseResolverProvider, it)
     }
 
-    val trunkFinder = createDependencyFinder(trunkIdeDescriptor.ide, releaseIdeDescriptor.ide, trunkLocalRepository, pluginDetailsCache)
+    val trunkFinder = createDependencyFinder(trunkIdeDescriptor.sonarPluginApi, releaseIdeDescriptor.sonarPluginApi, trunkLocalRepository, pluginDetailsCache)
     val trunkResolverProvider = DefaultClassResolverProvider(
       trunkFinder,
       trunkIdeDescriptor,
@@ -162,12 +162,12 @@ class CheckTrunkApiParamsBuilder(
       PluginVerificationDescriptor.IDE(trunkIdeDescriptor, trunkResolverProvider, it)
     }
 
-    val releaseVerificationTarget = PluginVerificationTarget.IDE(releaseIdeDescriptor.ideVersion, releaseIdeDescriptor.jdkVersion)
+    val releaseVerificationTarget = PluginVerificationTarget.IDE(releaseIdeDescriptor.version, releaseIdeDescriptor.jdkVersion)
     for ((pluginInfo, ignoreReason) in releasePluginsSet.ignoredPlugins) {
       reportage.logPluginVerificationIgnored(pluginInfo, releaseVerificationTarget, ignoreReason)
     }
 
-    val trunkVerificationTarget = PluginVerificationTarget.IDE(trunkIdeDescriptor.ideVersion, trunkIdeDescriptor.jdkVersion)
+    val trunkVerificationTarget = PluginVerificationTarget.IDE(trunkIdeDescriptor.version, trunkIdeDescriptor.jdkVersion)
     for ((pluginInfo, ignoreReason) in trunkPluginsSet.ignoredPlugins) {
       reportage.logPluginVerificationIgnored(pluginInfo, trunkVerificationTarget, ignoreReason)
     }
@@ -192,13 +192,11 @@ class CheckTrunkApiParamsBuilder(
    * 3) Compatible with the **release** IDE
    */
   private fun createDependencyFinder(
-    releaseOrTrunkIde: Ide,
-    releaseIde: Ide,
+    releaseOrTrunkIde: SonarPluginApi,
+    releaseIde: SonarPluginApi,
     localPluginRepository: PluginRepository,
     pluginDetailsCache: PluginDetailsCache
   ): DependencyFinder {
-    val bundledFinder = BundledPluginDependencyFinder(releaseOrTrunkIde, pluginDetailsCache)
-
     val localRepositoryDependencyFinder = RepositoryDependencyFinder(
       localPluginRepository,
       LastVersionSelector(),
@@ -213,7 +211,6 @@ class CheckTrunkApiParamsBuilder(
 
     return CompositeDependencyFinder(
       listOf(
-        bundledFinder,
         localRepositoryDependencyFinder,
         releaseDependencyFinder
       )
@@ -229,11 +226,8 @@ class CheckTrunkApiParamsBuilder(
     }
   }
 
-  private class IgnoreBundledPluginsFilter(val ide: Ide) : PluginFilter {
+  private class IgnoreBundledPluginsFilter(val ide: SonarPluginApi) : PluginFilter {
     override fun shouldVerifyPlugin(pluginInfo: PluginInfo): PluginFilter.Result {
-      if (ide.getPluginById(pluginInfo.pluginId) != null) {
-        return PluginFilter.Result.Ignore("Plugin is bundled with $ide")
-      }
       return PluginFilter.Result.Verify
     }
   }

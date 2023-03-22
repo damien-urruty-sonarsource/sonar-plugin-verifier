@@ -3,8 +3,6 @@
  */
 package com.jetbrains.plugin.structure.intellij.plugin
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.jetbrains.plugin.structure.base.plugin.*
 import com.jetbrains.plugin.structure.base.problems.*
 import com.jetbrains.plugin.structure.base.utils.*
@@ -18,7 +16,7 @@ import com.jetbrains.plugin.structure.intellij.resources.CompositeResourceResolv
 import com.jetbrains.plugin.structure.intellij.resources.DefaultResourceResolver
 import com.jetbrains.plugin.structure.intellij.resources.ResourceResolver
 import com.jetbrains.plugin.structure.intellij.utils.JDOMUtil
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import org.jdom2.input.JDOMParseException
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -283,16 +281,6 @@ class IdePluginManager private constructor(
     descriptorPath: String = PLUGIN_XML
   ): PluginCreationResult<IdePlugin> {
     val pluginCreator = getPluginCreatorWithResult(pluginFile, validateDescriptor, descriptorPath)
-    return pluginCreator.pluginCreationResult
-  }
-
-  fun createBundledPlugin(
-    pluginFile: Path,
-    ideVersion: IdeVersion,
-    descriptorPath: String
-  ): PluginCreationResult<IdePlugin> {
-    val pluginCreator = getPluginCreatorWithResult(pluginFile, false, descriptorPath)
-    pluginCreator.setPluginVersion(ideVersion.asStringWithoutProductCode())
     return pluginCreator.pluginCreationResult
   }
 

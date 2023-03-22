@@ -5,8 +5,8 @@ import com.jetbrains.plugin.structure.base.plugin.PluginCreationSuccess
 import com.jetbrains.plugin.structure.base.utils.contentBuilder.ContentBuilder
 import com.jetbrains.plugin.structure.base.utils.contentBuilder.buildDirectory
 import com.jetbrains.plugin.structure.base.utils.contentBuilder.buildZipFile
-import com.jetbrains.plugin.structure.ide.Ide
-import com.jetbrains.plugin.structure.ide.IdeManager
+import com.jetbrains.plugin.structure.ide.SonarPluginApi
+import com.jetbrains.plugin.structure.ide.SonarPluginApiManager
 import com.jetbrains.plugin.structure.intellij.plugin.IdePlugin
 import com.jetbrains.plugin.structure.intellij.plugin.IdePluginManager
 import com.jetbrains.pluginverifier.PluginVerificationResult
@@ -315,7 +315,7 @@ class DynamicPluginStatusTest {
     assertEquals(dynamicStatus, verificationResult.dynamicPluginStatus)
   }
 
-  private fun runVerification(ide: Ide, idePlugin: IdePlugin) =
+  private fun runVerification(ide: SonarPluginApi, idePlugin: IdePlugin) =
     VerificationRunner().runPluginVerification(ide, idePlugin) as PluginVerificationResult.Verified
 
   private fun buildPluginWithXml(pluginXmlContent: () -> String): IdePlugin {
@@ -335,7 +335,7 @@ class DynamicPluginStatusTest {
     return (pluginCreationResult as PluginCreationSuccess).plugin
   }
 
-  private fun buildIde(): Ide {
+  private fun buildIde(): SonarPluginApi {
     val ideaDirectory = buildDirectory(temporaryFolder.newFolder("idea").toPath()) {
       file("build.txt", "IU-192.1")
       dir("lib") {
@@ -379,7 +379,7 @@ class DynamicPluginStatusTest {
       }
     }
 
-    val ide = IdeManager.createManager().createIde(ideaDirectory)
+    val ide = SonarPluginApiManager.createManager().createSonarPluginApi(ideaDirectory)
     assertEquals("IU-192.1", ide.version.asString())
     return ide
   }

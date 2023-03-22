@@ -18,7 +18,7 @@ import com.jetbrains.pluginverifier.output.teamcity.TeamCityResultPrinter
 import com.jetbrains.pluginverifier.output.teamcity.TeamCityTest
 import com.jetbrains.pluginverifier.repository.Browseable
 import com.jetbrains.pluginverifier.repository.PluginInfo
-import com.jetbrains.pluginverifier.repository.repositories.marketplace.UpdateInfo
+import com.jetbrains.pluginverifier.repository.repositories.artifactory.PluginArtifact
 import com.jetbrains.pluginverifier.results.location.toReference
 import com.jetbrains.pluginverifier.results.problems.*
 import com.jetbrains.pluginverifier.results.reference.SymbolicReference
@@ -140,7 +140,7 @@ class TwoTargetsResultPrinter : TaskResultPrinter {
                 val latestPluginVerification = if (newTarget is PluginVerificationTarget.IDE) {
                   @Suppress("RemoveExplicitTypeArguments")
                   (newPluginIdToVerifications[plugin.pluginId] ?: emptyList<PluginVerificationResult>()).find {
-                    it.plugin != plugin && it.plugin.isCompatibleWith(newTarget.ideVersion)
+                    it.plugin != plugin && it.plugin.isCompatibleWith(newTarget.Version)
                   }
                 } else {
                   null
@@ -297,16 +297,16 @@ class TwoTargetsResultPrinter : TaskResultPrinter {
   ): String = buildString {
     if (baseTarget is PluginVerificationTarget.IDE
       && newTarget is PluginVerificationTarget.IDE
-      && !plugin.isCompatibleWith(newTarget.ideVersion)
+      && !plugin.isCompatibleWith(newTarget.Version)
     ) {
       appendLine(
         "Note that compatibility range ${plugin.presentableSinceUntilRange} " +
-          "of plugin ${plugin.presentableName} does not include ${newTarget.ideVersion}."
+          "of plugin ${plugin.presentableName} does not include ${newTarget.Version}."
       )
       if (latestPluginVerification != null) {
         appendLine(
           "We have also verified the newest plugin version ${latestPluginVerification.plugin.presentableName} " +
-            "whose compatibility range ${latestPluginVerification.plugin.presentableSinceUntilRange} includes ${newTarget.ideVersion}. "
+            "whose compatibility range ${latestPluginVerification.plugin.presentableSinceUntilRange} includes ${newTarget.Version}. "
         )
         val latestVersionSameProblemsCount = problems.count { latestPluginVerification.isKnownProblem(it) }
         if (latestVersionSameProblemsCount > 0) {
@@ -318,14 +318,14 @@ class TwoTargetsResultPrinter : TaskResultPrinter {
           appendLine("The newest version ${latestPluginVerification.plugin.version} has none of the problems of the old version and thus it may be considered unaffected by this breaking change.")
         }
       } else {
-        appendLine("There are no newer versions of the plugin for ${newTarget.ideVersion}. ")
+        appendLine("There are no newer versions of the plugin for ${newTarget.Version}. ")
       }
     }
   }
 
   private fun PluginInfo.getFullPluginCoordinates(): String {
     val browserUrl = (this as? Browseable)?.browserUrl?.let { " $it" }.orEmpty()
-    val updateId = (this as? UpdateInfo)?.updateId?.let { " (#$it)" }.orEmpty()
+    val updateId = (this as? PluginArtifact)?.updateId?.let { " (#$it)" }.orEmpty()
     return "$pluginId:$version$updateId$browserUrl"
   }
 

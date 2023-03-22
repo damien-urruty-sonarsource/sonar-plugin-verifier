@@ -9,16 +9,12 @@ import com.jetbrains.pluginverifier.filtering.*
 import com.jetbrains.pluginverifier.filtering.documented.DocumentedProblemsFilter
 import com.jetbrains.pluginverifier.filtering.documented.DocumentedProblemsPagesFetcher
 import com.jetbrains.pluginverifier.filtering.documented.DocumentedProblemsParser
-import com.jetbrains.pluginverifier.ide.IdeDescriptor
-import com.jetbrains.pluginverifier.ide.IdeDownloader
-import com.jetbrains.pluginverifier.ide.repositories.IdeRepository
-import com.jetbrains.pluginverifier.ide.repositories.IntelliJIdeRepository
-import com.jetbrains.pluginverifier.ide.repositories.ReleaseIdeRepository
+import com.jetbrains.pluginverifier.ide.SonarPluginApiDescriptor
 import com.jetbrains.pluginverifier.output.OutputOptions
 import com.jetbrains.pluginverifier.output.teamcity.TeamCityHistory
 import com.jetbrains.pluginverifier.output.teamcity.TeamCityLog
 import com.jetbrains.pluginverifier.output.teamcity.TeamCityResultPrinter
-import com.jetbrains.pluginverifier.plugin.api.PluginApiJarDownloader
+import com.jetbrains.pluginverifier.plugin.api.JarDownloader
 import com.jetbrains.pluginverifier.repository.downloader.DownloadResult
 import com.jetbrains.pluginverifier.verifiers.packages.DefaultPackageFilter
 import com.jetbrains.pluginverifier.verifiers.packages.PackageFilter
@@ -63,47 +59,23 @@ object OptionsParser {
     )
   }
 
-  fun createIdeDescriptor(ide: String, opts: CmdOpts): IdeDescriptor {
+  fun createSonarPluginApiDescriptor(ide: String, opts: CmdOpts): SonarPluginApiDescriptor {
     val path = Paths.get(ide)
-    val ideFile = if (!Files.exists(path)) {
-      downloadPluginApiJar(ide)
+    val sonarPluginApiFile = if (!Files.exists(path)) {
+      downloadSonarPluginApiJar(ide)
     } else {
       path
     }
-//    require(ideFile.isDirectory) { "IDE must reside in a directory: $ideFile" }
-    LOG.info("Reading IDE from $ideFile")
-    return createIdeDescriptor(ideFile, opts)
+    LOG.info("Reading sonar-plugin-api from $sonarPluginApiFile")
+    return createSonarPluginApiDescriptor(sonarPluginApiFile, opts)
   }
 
-  fun createIdeDescriptor(idePath: Path, opts: CmdOpts): IdeDescriptor {
+  fun createSonarPluginApiDescriptor(sonarPluginApiFilePath: Path, opts: CmdOpts): SonarPluginApiDescriptor {
     val defaultJdkPath = opts.runtimeDir?.let { Paths.get(it) }
-    return IdeDescriptor.create(idePath, defaultJdkPath, null)
+    return SonarPluginApiDescriptor.create(sonarPluginApiFilePath, defaultJdkPath, null)
   }
 
-  private val ideLatestRegexp = Regex("\\[latest(-([A-Z]+))?]")
-  private val ideLatestReleaseRegexp = Regex("\\[latest-release(-([A-Z]+))?]")
-
-  private fun downloadIde(ide: String): Path {
-    val latestMatch = ideLatestRegexp.matchEntire(ide)
-    if (latestMatch != null) {
-      val productCode = latestMatch.groups[2]?.value ?: "IU"
-      val repository = if (productCode == "IU") {
-        IntelliJIdeRepository(IntelliJIdeRepository.Channel.SNAPSHOTS)
-      } else {
-        ReleaseIdeRepository()
-      }
-      return downloadIde(productCode, repository, true)
-    }
-
-    val latestReleaseMatch = ideLatestReleaseRegexp.matchEntire(ide)
-    if (latestReleaseMatch != null) {
-      val productCode = latestReleaseMatch.groups[2]?.value ?: "IU"
-      return downloadIde(productCode, ReleaseIdeRepository(), false)
-    }
-    throw IllegalArgumentException("IDE pattern does not match any of: ${ideLatestRegexp.pattern}, ${ideLatestReleaseRegexp.pattern}")
-  }
-
-  private fun downloadPluginApiJar(version: String): Path {
+  private fun downloadSonarPluginApiJar(version: String): Path {
     return downloadJar("https://repo1.maven.org/maven2/org/sonarsource/api/plugin/sonar-plugin-api/$version", "sonar-plugin-api-$version.jar")
   }
 
@@ -119,44 +91,10 @@ object OptionsParser {
 
     val jarUrl = "$baseUrl/$jarName"
     LOG.info("Downloading $jarUrl from Repox")
-    return when (val downloadResult = PluginApiJarDownloader().downloadFile(jarUrl, jarLocalPath)) {
+    return when (val downloadResult = JarDownloader().downloadFile(jarUrl, jarLocalPath)) {
       is DownloadResult.Downloaded -> jarLocalPath
       is DownloadResult.NotFound -> throw IllegalArgumentException("No JAR found at $jarUrl")
       is DownloadResult.FailedToDownload -> throw RuntimeException("Failed to download JAR", downloadResult.error)
-    }
-  }
-
-  private fun downloadIde(
-    productCode: String,
-    ideRepository: IdeRepository,
-    latestOrLatestRelease: Boolean
-  ): Path {
-    val releaseModifier = (if (latestOrLatestRelease) "latest" else "latest release") + " of $productCode"
-    LOG.info("Requesting the index of available IDE builds for the $releaseModifier from $ideRepository")
-    val availableIde = ideRepository.fetchIndex()
-      .filter { it.product.productCode == productCode }
-      .filter { if (latestOrLatestRelease) true else it.isRelease }
-      .maxByOrNull { it.version }
-    availableIde ?: throw IllegalArgumentException("No IDE found for $productCode in $ideRepository")
-
-    val idesDirectory = System.getProperty("intellij.plugin.verifier.download.ide.temp.dir")?.let { Paths.get(it) }
-      ?: Path.of(System.getProperty("java.io.tmpdir")).resolve("downloaded-ides")
-
-    val ideDirectory = idesDirectory.resolve(availableIde.version.asString())
-    if (Files.isDirectory(ideDirectory)) {
-      LOG.info("IDE $releaseModifier is already downloaded to $ideDirectory")
-      return ideDirectory
-    }
-
-    val downloadingTempDir = idesDirectory.resolve("downloading").createDir()
-    LOG.info("Downloading $releaseModifier ${availableIde.version} from $ideRepository to $ideDirectory")
-    return when (val downloadResult = IdeDownloader().download(availableIde, downloadingTempDir)) {
-      is DownloadResult.Downloaded -> {
-        Files.move(downloadResult.downloadedFileOrDirectory, ideDirectory)
-        ideDirectory
-      }
-      is DownloadResult.NotFound -> throw IllegalArgumentException("No IDE found for $productCode in $ideRepository")
-      is DownloadResult.FailedToDownload -> throw RuntimeException("Failed to download IDE $productCode", downloadResult.error)
     }
   }
 

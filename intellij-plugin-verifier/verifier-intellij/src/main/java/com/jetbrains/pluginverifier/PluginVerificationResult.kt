@@ -85,7 +85,7 @@ sealed class PluginVerificationResult(
             }
             append("dependency".pluralize(allDirectMissingDependencies.size))
             if (verificationTarget is PluginVerificationTarget.IDE) {
-              append(" in the target IDE " + verificationTarget.ideVersion.asString())
+              append(" in the target IDE " + verificationTarget.Version.asString())
             }
           }
         }

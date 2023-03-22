@@ -5,7 +5,7 @@
 package com.jetbrains.pluginverifier.ide
 
 import com.jetbrains.plugin.structure.ide.IntelliJPlatformProduct
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.pluginverifier.misc.safeEquals
 import com.jetbrains.pluginverifier.misc.safeHashCode
 import java.net.URL
@@ -20,7 +20,7 @@ data class AvailableIde(
   /**
    * IDE build number of _this_ IDE.
    */
-  val version: IdeVersion,
+  val version: Version,
   /**
    * Official release version of this IDE,
    * like `2017.3.4, 2017.3`, or `null`

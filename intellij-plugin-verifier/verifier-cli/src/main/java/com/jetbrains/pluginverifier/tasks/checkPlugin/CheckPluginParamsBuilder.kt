@@ -7,7 +7,7 @@ package com.jetbrains.pluginverifier.tasks.checkPlugin
 import com.jetbrains.pluginverifier.PluginVerificationDescriptor
 import com.jetbrains.pluginverifier.PluginVerificationTarget
 import com.jetbrains.pluginverifier.dependencies.resolution.*
-import com.jetbrains.pluginverifier.ide.IdeDescriptor
+import com.jetbrains.pluginverifier.ide.SonarPluginApiDescriptor
 import com.jetbrains.pluginverifier.options.CmdOpts
 import com.jetbrains.pluginverifier.options.OptionsParser
 import com.jetbrains.pluginverifier.options.PluginsParsing
@@ -35,10 +35,10 @@ class CheckPluginParamsBuilder(
 
     val ideDescriptors = freeArgs.drop(1).map {
       reportage.logVerificationStage("Reading IDE $it")
-      OptionsParser.createIdeDescriptor(it, opts)
+      OptionsParser.createSonarPluginApiDescriptor(it, opts)
     }
 
-    val ideVersions = ideDescriptors.map { it.ideVersion }
+    val ideVersions = ideDescriptors.map { it.version }
     val pluginsSet = PluginsSet()
     val pluginsParsing = PluginsParsing(pluginRepository, reportage, pluginsSet)
 
@@ -72,7 +72,7 @@ class CheckPluginParamsBuilder(
     }
 
     val verificationTargets = ideDescriptors.map {
-      PluginVerificationTarget.IDE(it.ideVersion, it.jdkVersion)
+      PluginVerificationTarget.IDE(it.version, it.jdkVersion)
     }
 
     pluginsSet.ignoredPlugins.forEach { (plugin, reason) ->
@@ -97,9 +97,9 @@ class CheckPluginParamsBuilder(
    * suppose plugins A and B are verified simultaneously and A depends on B.
    * Then B must be resolved to the local plugin when the A is verified.
    */
-  private fun createDependencyFinder(localRepository: LocalPluginRepository, ideDescriptor: IdeDescriptor, pluginDetailsCache: PluginDetailsCache): DependencyFinder {
+  private fun createDependencyFinder(localRepository: LocalPluginRepository, ideDescriptor: SonarPluginApiDescriptor, pluginDetailsCache: PluginDetailsCache): DependencyFinder {
     val localFinder = RepositoryDependencyFinder(localRepository, LastVersionSelector(), pluginDetailsCache)
-    val ideDependencyFinder = createIdeBundledOrPluginRepositoryDependencyFinder(ideDescriptor.ide, pluginRepository, pluginDetailsCache)
+    val ideDependencyFinder = createIdeBundledOrPluginRepositoryDependencyFinder(ideDescriptor.sonarPluginApi, pluginRepository, pluginDetailsCache)
     return CompositeDependencyFinder(listOf(localFinder, ideDependencyFinder))
   }
 

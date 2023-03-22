@@ -73,7 +73,7 @@
 
     <!--  Resolve xi:include-s  -->
 
-    <xi:include href="extensions/ide.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="extensions/sonarPluginApi.xml" xpointer="xpointer(/idea-plugin/*)"/>
 
     <extensionPoints>
         <xi:include href="extensions/common.xml" xpointer="xpointer(/idea-plugin/extensionPoints/*)"/>

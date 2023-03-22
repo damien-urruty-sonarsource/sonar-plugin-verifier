@@ -5,18 +5,16 @@
 package com.jetbrains.pluginverifier.plugin.api
 
 import com.jetbrains.plugin.structure.base.utils.*
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
 import com.jetbrains.pluginverifier.repository.downloader.DownloadResult
 import com.jetbrains.pluginverifier.repository.downloader.Downloader
 import com.jetbrains.pluginverifier.repository.downloader.UrlDownloader
 import java.net.URL
-import java.nio.file.Files
 import java.nio.file.Path
 
 /**
- * [Downloader] of the sonar-plugin-api jar file.
+ * [Downloader] of jar file.
  */
-class PluginApiJarDownloader : Downloader<String> {
+class JarDownloader : Downloader<String> {
 
   private val urlDownloader = UrlDownloader<String> { URL(it) }
 

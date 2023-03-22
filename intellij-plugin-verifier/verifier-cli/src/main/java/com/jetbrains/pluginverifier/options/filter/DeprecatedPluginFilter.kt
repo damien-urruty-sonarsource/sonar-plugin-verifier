@@ -5,7 +5,7 @@
 package com.jetbrains.pluginverifier.options.filter
 
 import com.jetbrains.pluginverifier.repository.PluginInfo
-import com.jetbrains.pluginverifier.repository.repositories.marketplace.UpdateInfo
+import com.jetbrains.pluginverifier.repository.repositories.artifactory.PluginArtifact
 
 /**
  * [PluginFilter] that excludes from verification plugins
@@ -21,7 +21,7 @@ class DeprecatedPluginFilter : PluginFilter {
   }
 
   override fun shouldVerifyPlugin(pluginInfo: PluginInfo): PluginFilter.Result {
-    if (pluginInfo is UpdateInfo) {
+    if (pluginInfo is PluginArtifact) {
       val deprecatedTag = pluginInfo.tags.find { it in deprecatedTags }
       if (deprecatedTag != null) {
         return PluginFilter.Result.Ignore("The plugin $pluginInfo is marked with tag '$deprecatedTag'.")

@@ -1,10 +1,10 @@
 package com.jetbrains.plugin.structure.domain
 
 import com.jetbrains.plugin.structure.base.utils.contentBuilder.buildDirectory
-import com.jetbrains.plugin.structure.ide.IdeManager
-import com.jetbrains.plugin.structure.ide.InvalidIdeException
+import com.jetbrains.plugin.structure.ide.SonarPluginApiManager
+import com.jetbrains.plugin.structure.ide.InvalidSonarPluginApiException
 import com.jetbrains.plugin.structure.intellij.plugin.IdeTheme
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.plugin.structure.mocks.PluginXmlBuilder
 import com.jetbrains.plugin.structure.mocks.modify
 import com.jetbrains.plugin.structure.mocks.perfectXmlBuilder
@@ -15,7 +15,7 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.nio.file.Paths
 
-class IdeTest {
+class SonarPluginApiTest {
 
   @Rule
   @JvmField
@@ -30,9 +30,9 @@ class IdeTest {
     Assert.assertThrows(
       "IDE by path '$idePath' is invalid: Build number is not found in the following files relative to $idePath: " +
         "'build.txt', '${Paths.get("Resources").resolve("build.txt")}', '${Paths.get("community").resolve("build.txt")}', '${Paths.get("ultimate").resolve("community").resolve("build.txt")}'",
-      InvalidIdeException::class.java
+      InvalidSonarPluginApiException::class.java
     ) {
-      IdeManager.createManager().createIde(idePath)
+      SonarPluginApiManager.createManager().createSonarPluginApi(idePath)
     }
   }
 
@@ -100,16 +100,8 @@ class IdeTest {
       }
     }
 
-    val ide = IdeManager.createManager().createIde(ideaFolder)
-    assertEquals(IdeVersion.createIdeVersion("IU-163.1.2.3"), ide.version)
-    assertEquals(2, ide.bundledPlugins.size)
-    val bundledPlugin = ide.bundledPlugins[0]!!
-    val ideaCorePlugin = ide.bundledPlugins[1]!!
-    assertEquals("someId", bundledPlugin.pluginId)
-    assertEquals("com.intellij", ideaCorePlugin.pluginId)
-    assertEquals("IDEA CORE", ideaCorePlugin.pluginName)
-    assertEquals("some.idea.module", ideaCorePlugin.definedModules.single())
-    assertEquals(ideaCorePlugin, ide.getPluginByModule("some.idea.module"))
+    val ide = SonarPluginApiManager.createManager().createSonarPluginApi(ideaFolder)
+    assertEquals(Version.createIdeVersion("IU-163.1.2.3"), ide.version)
   }
 
   /**
@@ -248,14 +240,8 @@ class IdeTest {
       }
     }
 
-    val ide = IdeManager.createManager().createIde(ideaFolder)
-    assertEquals(IdeVersion.createIdeVersion("IU-163.1.2.3"), ide.version)
-    assertEquals(1, ide.bundledPlugins.size)
-
-    val plugin = ide.bundledPlugins[0]!!
-    assertEquals(ideaFolder.resolve("out").resolve("classes").resolve("production").resolve("somePlugin"), plugin.originalFile)
-    assertEquals(listOf(IdeTheme("someTheme", true)), plugin.declaredThemes)
-    assertEquals("someId", plugin.pluginId)
+    val ide = SonarPluginApiManager.createManager().createSonarPluginApi(ideaFolder)
+    assertEquals(Version.createIdeVersion("IU-163.1.2.3"), ide.version)
   }
 
   @Test
@@ -286,11 +272,8 @@ class IdeTest {
       }
     }
 
-    val ide = IdeManager.createManager().createIde(ideaFolder)
-    assertEquals(IdeVersion.createIdeVersion("IU-163.1.2.3"), ide.version)
-    assertEquals(1, ide.bundledPlugins.size)
-    val plugin = ide.bundledPlugins[0]!!
-    assertEquals("Bundled", plugin.pluginId)
+    val ide = SonarPluginApiManager.createManager().createSonarPluginApi(ideaFolder)
+    assertEquals(Version.createIdeVersion("IU-163.1.2.3"), ide.version)
   }
 
   /**
@@ -329,13 +312,7 @@ class IdeTest {
       }
     }
 
-    val ide = IdeManager.createManager().createIde(ideaFolder)
-    assertEquals(IdeVersion.createIdeVersion("IE-221.5591.62"), ide.version)
-    assertEquals(1, ide.bundledPlugins.size)
-    val ideaCorePlugin = ide.bundledPlugins[0]!!
-    assertEquals("com.intellij", ideaCorePlugin.pluginId)
-    assertEquals("IDEA CORE", ideaCorePlugin.pluginName)
-    assertEquals("some.idea.module", ideaCorePlugin.definedModules.single())
-    assertEquals(ideaCorePlugin, ide.getPluginByModule("some.idea.module"))
+    val ide = SonarPluginApiManager.createManager().createSonarPluginApi(ideaFolder)
+    assertEquals(Version.createIdeVersion("IE-221.5591.62"), ide.version)
   }
 }

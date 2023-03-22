@@ -27,7 +27,7 @@ data class Runner(
 )
 
 data class PluginVerifierPropertiesBag(
-  val ideVersion: String,
+  val Version: String,
   val javaVersion: String,
   val resultType: VerificationResultTypeDto,
   val verdict: String,

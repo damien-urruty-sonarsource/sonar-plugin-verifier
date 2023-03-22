@@ -5,7 +5,7 @@
 package com.jetbrains.pluginverifier.repository.repositories.custom
 
 import com.google.common.base.Suppliers
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.pluginverifier.repository.PluginInfo
 import com.jetbrains.pluginverifier.repository.PluginRepository
 import com.jetbrains.pluginverifier.repository.repositories.VERSION_COMPARATOR
@@ -25,15 +25,15 @@ abstract class CustomPluginRepository : PluginRepository {
 
   fun getAllPlugins(): List<CustomPluginInfo> = allPluginsCache.get()
 
-  override fun getLastCompatiblePlugins(ideVersion: IdeVersion) =
+  override fun getLastCompatiblePlugins(Version: Version) =
     getAllPlugins()
 
-  override fun getLastCompatibleVersionOfPlugin(ideVersion: IdeVersion, pluginId: String) =
+  override fun getLastCompatibleVersionOfPlugin(Version: Version, pluginId: String) =
     getAllPlugins().maxWithOrNull(VERSION_COMPARATOR)
 
   override fun getAllVersionsOfPlugin(pluginId: String) =
     getAllPlugins().filter { it.pluginId == pluginId }
 
-  override fun getPluginsDeclaringModule(moduleId: String, ideVersion: IdeVersion?): List<PluginInfo> = emptyList()
+  override fun getPluginsDeclaringModule(moduleId: String, Version: Version?): List<PluginInfo> = emptyList()
 
 }

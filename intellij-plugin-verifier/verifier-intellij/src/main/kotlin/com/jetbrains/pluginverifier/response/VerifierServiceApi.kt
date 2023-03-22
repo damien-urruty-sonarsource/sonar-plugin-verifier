@@ -23,7 +23,7 @@ enum class VerificationResultTypeDto {
 
 data class FullVerificationResultDto(
   val updateId: Int,
-  val ideVersion: AvailableIdeDto,
+  val Version: AvailableIdeDto,
   val javaVersion: String,
   val resultType: VerificationResultTypeDto,
   val verificationVerdict: String,
@@ -41,7 +41,7 @@ data class FullVerificationResultDto(
 )
 
 data class AvailableIdeDto(
-  val ideVersion: String,
+  val Version: String,
   val releaseVersion: String?,
   val productName: String?
 )

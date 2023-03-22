@@ -20,12 +20,12 @@ import com.jetbrains.pluginverifier.reporting.PluginVerificationReportage
 import com.jetbrains.pluginverifier.repository.cleanup.DiskSpaceSetting
 import com.jetbrains.pluginverifier.repository.cleanup.SpaceAmount
 import com.jetbrains.pluginverifier.repository.cleanup.SpaceUnit
+import com.jetbrains.pluginverifier.repository.repositories.artifactory.ArtifactoryRepository
 import com.jetbrains.pluginverifier.repository.repositories.local.LocalPluginRepositoryFactory
-import com.jetbrains.pluginverifier.repository.repositories.marketplace.MarketplaceRepository
 import com.jetbrains.pluginverifier.tasks.CommandRunner
-import com.jetbrains.pluginverifier.tasks.checkIde.CheckIdeRunner
 import com.jetbrains.pluginverifier.tasks.checkPlugin.CheckPluginRunner
 import com.jetbrains.pluginverifier.tasks.checkPluginApi.CheckPluginApiRunner
+import com.jetbrains.pluginverifier.tasks.checkSonarPluginApi.CheckSonarPluginApiRunner
 import com.jetbrains.pluginverifier.tasks.checkTrunkApi.CheckTrunkApiRunner
 import com.jetbrains.pluginverifier.tasks.processAllPlugins.ProcessAllPluginsCommand
 import com.sampullara.cli.Args
@@ -43,7 +43,7 @@ object PluginVerifierMain {
 
   private val commandRunners: List<CommandRunner> = listOf(
     CheckPluginRunner(),
-    CheckIdeRunner(),
+    CheckSonarPluginApiRunner(),
     CheckTrunkApiRunner(),
     CheckPluginApiRunner(),
     ProcessAllPluginsCommand()
@@ -108,7 +108,7 @@ object PluginVerifierMain {
     val pluginRepository = if (opts.offlineMode) {
       LocalPluginRepositoryFactory.createLocalPluginRepository(downloadDirectory)
     } else {
-      MarketplaceRepository(URL(pluginRepositoryUrl))
+      ArtifactoryRepository(URL(pluginRepositoryUrl))
     }
 
     val pluginDownloadDirDiskSpaceSetting = getDiskSpaceSetting("plugin.verifier.cache.dir.max.space", 5L * 1024)

@@ -2,7 +2,7 @@ package com.jetbrains.plugin.structure.repository
 
 import com.jetbrains.plugin.structure.intellij.repository.CustomPluginRepositoryListingParser
 import com.jetbrains.plugin.structure.intellij.repository.CustomPluginRepositoryListingType
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import org.junit.Assert
 import org.junit.Test
 import java.net.URL
@@ -45,8 +45,8 @@ class CustomPluginRepositoryListingParserTest {
         URL("https://absolute-url.com/file.zip"),
         repositoryUrl,
         null,
-        IdeVersion.createIdeVersion("193.0"),
-        IdeVersion.createIdeVersion("201.1")
+        Version.createIdeVersion("193.0"),
+        Version.createIdeVersion("201.1")
       )
     )
 
@@ -95,8 +95,8 @@ class CustomPluginRepositoryListingParserTest {
         URL("https://xml-url.com/file.zip"),
         repositoryUrl,
         null,
-        IdeVersion.createIdeVersion("193.0"),
-        IdeVersion.createIdeVersion("201.1")
+        Version.createIdeVersion("193.0"),
+        Version.createIdeVersion("201.1")
       )
     )
 

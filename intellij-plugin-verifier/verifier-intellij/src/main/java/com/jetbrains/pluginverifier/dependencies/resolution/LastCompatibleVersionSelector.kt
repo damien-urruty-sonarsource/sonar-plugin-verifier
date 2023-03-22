@@ -4,16 +4,16 @@
 
 package com.jetbrains.pluginverifier.dependencies.resolution
 
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.pluginverifier.repository.PluginRepository
 
 /**
  * The [PluginVersionSelector] that selects
- * the _last_ version of the plugin _compatible_ with [ideVersion].
+ * the _last_ version of the plugin _compatible_ with [Version].
  */
-class LastCompatibleVersionSelector(val ideVersion: IdeVersion) : PluginVersionSelector {
+class LastCompatibleVersionSelector(val version: Version) : PluginVersionSelector {
   override fun selectPluginVersion(pluginId: String, pluginRepository: PluginRepository): PluginVersionSelector.Result {
-    val pluginInfo = pluginRepository.getLastCompatibleVersionOfPlugin(ideVersion, pluginId)
+    val pluginInfo = pluginRepository.getLastCompatibleVersionOfPlugin(version, pluginId)
     if (pluginInfo != null) {
       return PluginVersionSelector.Result.Selected(pluginInfo)
     }
@@ -21,11 +21,11 @@ class LastCompatibleVersionSelector(val ideVersion: IdeVersion) : PluginVersionS
     if (allVersions.isEmpty()) {
       return PluginVersionSelector.Result.NotFound("Plugin $pluginId is not available in ${pluginRepository.presentableName}")
     }
-    return PluginVersionSelector.Result.NotFound("Plugin $pluginId doesn't have a build compatible with $ideVersion in ${pluginRepository.presentableName}")
+    return PluginVersionSelector.Result.NotFound("Plugin $pluginId doesn't have a build compatible with $version in ${pluginRepository.presentableName}")
   }
 
   override fun selectPluginByModuleId(moduleId: String, pluginRepository: PluginRepository): PluginVersionSelector.Result {
-    val plugins = pluginRepository.getPluginsDeclaringModule(moduleId, ideVersion)
+    val plugins = pluginRepository.getPluginsDeclaringModule(moduleId, version)
     val somePlugin = plugins.firstOrNull()
     if (somePlugin != null) {
       return PluginVersionSelector.Result.Selected(somePlugin)

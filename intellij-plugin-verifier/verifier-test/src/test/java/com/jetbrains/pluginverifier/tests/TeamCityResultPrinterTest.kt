@@ -1,6 +1,6 @@
 package com.jetbrains.pluginverifier.tests
 
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.pluginverifier.PluginVerificationResult
 import com.jetbrains.pluginverifier.PluginVerificationTarget
 import com.jetbrains.pluginverifier.jdk.JdkVersion
@@ -30,9 +30,9 @@ class TeamCityResultPrinterTest {
       val pluginInfos: List<PluginInfo>
         get() = listOf(first, second)
 
-      override fun getLastCompatiblePlugins(ideVersion: IdeVersion): List<PluginInfo> = pluginInfos
+      override fun getLastCompatiblePlugins(Version: Version): List<PluginInfo> = pluginInfos
 
-      override fun getLastCompatibleVersionOfPlugin(ideVersion: IdeVersion, pluginId: String): PluginInfo? =
+      override fun getLastCompatibleVersionOfPlugin(Version: Version, pluginId: String): PluginInfo? =
         second.takeIf { pluginId == it.pluginId }
 
     }
@@ -71,7 +71,7 @@ class TeamCityResultPrinterTest {
         TeamCityResultPrinter.GroupBy.BY_PLUGIN,
         pluginRepository
       )
-      val verificationTarget = PluginVerificationTarget.IDE(IdeVersion.createIdeVersion("IU-145"), JdkVersion("1.8", null))
+      val verificationTarget = PluginVerificationTarget.IDE(Version.createIdeVersion("IU-145"), JdkVersion("1.8", null))
       tcPrinter.printResults(
         pluginInfos.map {
           PluginVerificationResult.NotFound(

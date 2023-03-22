@@ -19,8 +19,8 @@ import com.jetbrains.pluginverifier.repository.downloader.UrlDownloader
 import com.jetbrains.pluginverifier.repository.files.FileRepository
 import com.jetbrains.pluginverifier.repository.files.FileRepositoryResult
 import com.jetbrains.pluginverifier.repository.files.IdleFileLock
-import com.jetbrains.pluginverifier.repository.repositories.marketplace.MarketplaceRepository
-import com.jetbrains.pluginverifier.repository.repositories.marketplace.UpdateInfo
+import com.jetbrains.pluginverifier.repository.repositories.artifactory.ArtifactoryRepository
+import com.jetbrains.pluginverifier.repository.repositories.artifactory.PluginArtifact
 import org.apache.commons.io.FileUtils
 import java.net.URL
 import java.nio.file.Path
@@ -51,7 +51,7 @@ class PluginFilesBank(
 
       val downloadProvider = DownloadProvider(pluginsDir, urlDownloader) { key ->
         when (key) {
-          is UpdateInfo -> getFileNameForMarketplacePlugin(key)
+          is PluginArtifact -> getFileNameForArtifactoryPlugin(key)
           else -> (key.pluginId + "-" + key.version).replaceInvalidFileNameCharacters()
         }
       }
@@ -62,14 +62,14 @@ class PluginFilesBank(
         "downloaded-plugins"
       )
 
-      if (pluginRepository is MarketplaceRepository) {
+      if (pluginRepository is ArtifactoryRepository) {
         addAlreadyDownloadedPlugins(pluginsDir, pluginRepository, fileRepository)
       }
 
       return PluginFilesBank(fileRepository, urlProvider, downloadProvider)
     }
 
-    private fun getFileNameForMarketplacePlugin(pluginInfo: UpdateInfo): String =
+    private fun getFileNameForArtifactoryPlugin(pluginInfo: PluginArtifact): String =
       "${pluginInfo.pluginIntId}_${pluginInfo.updateId}"
 
     private fun getPluginIdAndUpdateIdByPath(path: Path): Pair<Int, Int>? {
@@ -81,7 +81,7 @@ class PluginFilesBank(
 
     private fun addAlreadyDownloadedPlugins(
       pluginsDir: Path,
-      pluginRepository: MarketplaceRepository,
+      pluginRepository: ArtifactoryRepository,
       fileRepository: FileRepository<PluginInfo>
     ) {
       val pathToPluginIdAndUpdateId = hashMapOf<Path, Pair<Int, Int>>()

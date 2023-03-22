@@ -13,7 +13,7 @@ import com.jetbrains.pluginverifier.reporting.common.FileReporter
 import com.jetbrains.pluginverifier.reporting.common.LogReporter
 import com.jetbrains.pluginverifier.reporting.ignoring.*
 import com.jetbrains.pluginverifier.repository.PluginInfo
-import com.jetbrains.pluginverifier.repository.repositories.marketplace.UpdateInfo
+import com.jetbrains.pluginverifier.repository.repositories.artifactory.PluginArtifact
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -88,7 +88,7 @@ class DirectoryBasedPluginVerificationReportage(private val targetDirectoryProvi
   private fun createPluginVerificationDirectory(pluginInfo: PluginInfo): Path {
     val pluginId = pluginInfo.pluginId.replaceInvalidFileNameCharacters()
     return when (pluginInfo) {
-      is UpdateInfo -> {
+      is PluginArtifact -> {
         val version = "${pluginInfo.version} (#${pluginInfo.updateId})".replaceInvalidFileNameCharacters()
         Paths.get(pluginId, version)
       }

@@ -4,8 +4,8 @@
 
 package com.jetbrains.pluginverifier.repository.repositories.bundled
 
-import com.jetbrains.plugin.structure.ide.Ide
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.ide.SonarPluginApi
+import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.pluginverifier.repository.PluginInfo
 import com.jetbrains.pluginverifier.repository.PluginRepository
 import com.jetbrains.pluginverifier.repository.repositories.VERSION_COMPARATOR
@@ -14,28 +14,26 @@ import com.jetbrains.pluginverifier.repository.repositories.VERSION_COMPARATOR
  * [PluginRepository] consisting of plugins bundled to the [IDE] [ide].
  */
 class BundledPluginsRepository(
-  val ide: Ide
+  val ide: SonarPluginApi
 ) : PluginRepository {
-  private fun getAllPlugins() = ide.bundledPlugins.map {
-    BundledPluginInfo(ide.version, it)
-  }
+  private fun getAllPlugins() = emptyList<BundledPluginInfo>()
 
-  override fun getLastCompatiblePlugins(ideVersion: IdeVersion) =
+  override fun getLastCompatiblePlugins(version: Version) =
     getAllPlugins()
-      .filter { it.isCompatibleWith(ideVersion) }
+      .filter { it.isCompatibleWith(version) }
       .groupBy { it.pluginId }
       .mapValues { it.value.maxWithOrNull(VERSION_COMPARATOR)!! }
       .values.toList()
 
-  override fun getLastCompatibleVersionOfPlugin(ideVersion: IdeVersion, pluginId: String) =
-    getAllVersionsOfPlugin(pluginId).filter { it.isCompatibleWith(ideVersion) }.maxWithOrNull(VERSION_COMPARATOR)
+  override fun getLastCompatibleVersionOfPlugin(version: Version, pluginId: String) =
+    getAllVersionsOfPlugin(pluginId).filter { it.isCompatibleWith(version) }.maxWithOrNull(VERSION_COMPARATOR)
 
   override fun getAllVersionsOfPlugin(pluginId: String) =
     getAllPlugins().filter { it.pluginId == pluginId }
 
-  override fun getPluginsDeclaringModule(moduleId: String, ideVersion: IdeVersion?): List<PluginInfo> {
+  override fun getPluginsDeclaringModule(moduleId: String, version: Version?): List<PluginInfo> {
     val pluginInfo = findPluginByModule(moduleId)
-    return listOfNotNull(pluginInfo?.takeIf { ideVersion == null || pluginInfo.isCompatibleWith(ideVersion) })
+    return listOfNotNull(pluginInfo?.takeIf { version == null || pluginInfo.isCompatibleWith(version) })
   }
 
   fun findPluginById(pluginId: String) = getAllVersionsOfPlugin(pluginId).firstOrNull()

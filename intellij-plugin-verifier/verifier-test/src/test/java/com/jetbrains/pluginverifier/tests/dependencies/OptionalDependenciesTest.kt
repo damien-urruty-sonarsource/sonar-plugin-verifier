@@ -2,7 +2,7 @@ package com.jetbrains.pluginverifier.tests.dependencies
 
 import com.jetbrains.plugin.structure.intellij.plugin.OptionalPluginDescriptor
 import com.jetbrains.plugin.structure.intellij.plugin.PluginDependencyImpl
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.pluginverifier.dependencies.*
 import com.jetbrains.pluginverifier.dependencies.resolution.DependencyFinder
 import com.jetbrains.pluginverifier.tests.mocks.MockIde
@@ -121,7 +121,7 @@ class OptionalDependenciesTest {
       }
     }
 
-    val ide = MockIde(IdeVersion.createIdeVersion("1.0"))
+    val ide = MockIde(Version.createIdeVersion("1.0"))
 
 
     //Build dependencies graph and compare it to what is expected.

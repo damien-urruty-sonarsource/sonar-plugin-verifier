@@ -5,15 +5,15 @@
 package com.jetbrains.plugin.structure.intellij.plugin
 
 import com.jetbrains.plugin.structure.base.plugin.Plugin
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import org.jdom2.Document
 import org.jdom2.Element
 import java.nio.file.Path
 
 interface IdePlugin : Plugin {
-  val sinceBuild: IdeVersion?
+  val sinceBuild: Version?
 
-  val untilBuild: IdeVersion?
+  val untilBuild: Version?
 
   val extensions: Map<String, List<Element>>
 
@@ -43,5 +43,5 @@ interface IdePlugin : Plugin {
 
   val isImplementationDetail: Boolean
 
-  fun isCompatibleWithIde(ideVersion: IdeVersion): Boolean
+  fun isCompatibleWithIde(version: Version): Boolean
 }

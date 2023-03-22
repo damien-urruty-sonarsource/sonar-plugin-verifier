@@ -4,7 +4,7 @@
 
 package com.jetbrains.pluginverifier.repository
 
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 
 /**
  * Identifier of a plugin.
@@ -29,12 +29,12 @@ abstract class PluginInfo(
   /**
    * "since" compatibility range.
    */
-  val sinceBuild: IdeVersion?,
+  val sinceBuild: Version?,
 
   /**
    * "until" compatibility range.
    */
-  val untilBuild: IdeVersion?,
+  val untilBuild: Version?,
 
   /**
    * Vendor of the plugin.
@@ -43,15 +43,15 @@ abstract class PluginInfo(
 ) {
 
   /**
-   * Checks whether this plugin is compatible with [ideVersion].
+   * Checks whether this plugin is compatible with [Version].
    */
-  fun isCompatibleWith(ideVersion: IdeVersion) =
-    (sinceBuild == null || sinceBuild <= ideVersion) && (untilBuild == null || ideVersion <= untilBuild)
+  fun isCompatibleWith(Version: Version) =
+    (sinceBuild == null || sinceBuild <= Version) && (untilBuild == null || Version <= untilBuild)
 
   val presentableSinceUntilRange: String
     get() {
-      val sinceCode = sinceBuild?.asStringWithoutProductCode()
-      val untilCode = untilBuild?.asStringWithoutProductCode()
+      val sinceCode = sinceBuild
+      val untilCode = untilBuild
       if (sinceCode != null) {
         if (untilCode != null) {
           return "$sinceCode — $untilCode"

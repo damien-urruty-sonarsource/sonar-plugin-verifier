@@ -2,7 +2,7 @@
  * Copyright 2000-2020 JetBrains s.r.o. and other contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
-package com.jetbrains.pluginverifier.tasks.checkIde
+package com.jetbrains.pluginverifier.tasks.checkSonarPluginApi
 
 import com.jetbrains.plugin.structure.base.utils.pluralizeWithNumber
 import com.jetbrains.pluginverifier.PluginVerificationResult
@@ -19,10 +19,10 @@ import com.jetbrains.pluginverifier.tasks.TaskResult
 import com.jetbrains.pluginverifier.tasks.TaskResultPrinter
 import java.io.PrintWriter
 
-class CheckIdeResultPrinter(val pluginRepository: PluginRepository) : TaskResultPrinter {
+class CheckSonarPluginApiResultPrinter(val pluginRepository: PluginRepository) : TaskResultPrinter {
 
   override fun printResults(taskResult: TaskResult, outputOptions: OutputOptions) {
-    with(taskResult as CheckIdeResult) {
+    with(taskResult as CheckSonarPluginApiResult) {
       if (outputOptions.teamCityLog != null) {
         val teamCityHistory = printTcLog(outputOptions.teamCityGroupType, this, outputOptions.teamCityLog)
         outputOptions.postProcessTeamCityTests(teamCityHistory)
@@ -34,7 +34,7 @@ class CheckIdeResultPrinter(val pluginRepository: PluginRepository) : TaskResult
     }
   }
 
-  private fun printTcLog(groupBy: TeamCityResultPrinter.GroupBy, checkIdeResult: CheckIdeResult, tcLog: TeamCityLog): TeamCityHistory {
+  private fun printTcLog(groupBy: TeamCityResultPrinter.GroupBy, checkIdeResult: CheckSonarPluginApiResult, tcLog: TeamCityLog): TeamCityHistory {
     with(checkIdeResult) {
       val resultPrinter = TeamCityResultPrinter(tcLog, groupBy, pluginRepository)
       val resultsHistory = resultPrinter.printResults(results)
@@ -49,16 +49,16 @@ class CheckIdeResultPrinter(val pluginRepository: PluginRepository) : TaskResult
       }
       val problemsNumber = problems.distinctBy { it.shortDescription }.size
       if (problemsNumber > 0) {
-        tcLog.buildStatusFailure("IDE ${ide.ideVersion} has " + "problem".pluralizeWithNumber(problemsNumber) + " affecting " + "plugin".pluralizeWithNumber(brokenPlugins.size))
+        tcLog.buildStatusFailure("IDE ${ide.Version} has " + "problem".pluralizeWithNumber(problemsNumber) + " affecting " + "plugin".pluralizeWithNumber(brokenPlugins.size))
       } else {
-        tcLog.buildStatusSuccess("IDE ${ide.ideVersion} doesn't have broken API problems")
+        tcLog.buildStatusSuccess("IDE ${ide.Version} doesn't have broken API problems")
       }
 
       return TeamCityHistory(resultsHistory.tests + versionsHistory.tests)
     }
   }
 
-  private fun printOnStdOut(checkIdeResult: CheckIdeResult) {
+  private fun printOnStdOut(checkIdeResult: CheckSonarPluginApiResult) {
     val printWriter = PrintWriter(System.out)
     val resultPrinter = WriterResultPrinter(printWriter)
     resultPrinter.printResults(checkIdeResult.results)

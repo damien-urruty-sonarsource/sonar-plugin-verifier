@@ -6,7 +6,7 @@ package com.jetbrains.plugin.structure.intellij.problems
 
 import com.jetbrains.plugin.structure.base.plugin.PluginProblem
 import com.jetbrains.plugin.structure.base.problems.PluginDescriptorResolutionError
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 
 class NoModuleDependencies(private val descriptorPath: String) : PluginProblem() {
   override val level
@@ -83,21 +83,16 @@ class OptionalDependencyConfigFileNotSpecified(private val optionalDependencyId:
 }
 
 class ElementAvailableOnlySinceNewerVersion(
-  private val elementName: String,
-  private val availableSinceBuild: IdeVersion,
-  private val pluginSinceBuild: IdeVersion,
-  private val pluginUntilBuild: IdeVersion?
+    private val elementName: String,
+    private val availableSinceBuild: Version,
+    private val pluginSinceBuild: Version,
+    private val pluginUntilBuild: Version?
 ) : PluginProblem() {
   override val level
     get() = Level.WARNING
 
   override val message
-    get() = "Element <$elementName> is available only since ${availableSinceBuild.asStringWithoutProductCode()} but the plugin can be installed in " +
-      if (pluginUntilBuild != null) {
-        pluginSinceBuild.asStringWithoutProductCode() + "—" + pluginUntilBuild.asStringWithoutProductCode()
-      } else {
-        pluginSinceBuild.asStringWithoutProductCode() + "+"
-      }
+    get() = "Element <$elementName> is available only since ${availableSinceBuild.asString()} but the plugin can be installed"
 }
 
 class ElementMissingAttribute(

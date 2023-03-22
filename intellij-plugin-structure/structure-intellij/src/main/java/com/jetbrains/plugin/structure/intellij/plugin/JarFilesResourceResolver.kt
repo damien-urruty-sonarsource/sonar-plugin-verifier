@@ -19,10 +19,14 @@ class JarFilesResourceResolver(private val jarFiles: List<Path>) : ResourceResol
       return resourceResult
     }
     val finalPath = basePath.resolveSibling(relativePath).toString()
+    return resolveResource(finalPath)
+  }
+
+  fun resolveResource(path: String): ResourceResolver.Result {
     for (jarFile in jarFiles) {
       val jarFs = FileSystems.newFileSystem(jarFile, JarFilesResourceResolver::class.java.classLoader)
       val foundResult = try {
-        val path = jarFs.getPath(finalPath.withZipFsSeparator())
+        val path = jarFs.getPath(path.withZipFsSeparator())
         if (path.exists()) {
           ResourceResolver.Result.Found(path, path.inputStream(), resourceToClose = jarFs)
         } else {

@@ -4,8 +4,6 @@
 
 package com.jetbrains.plugin.structure.ide
 
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
-
 /**
  * Enumerates known IntelliJ Platform IDEs.
  */
@@ -36,11 +34,4 @@ enum class IntelliJPlatformProduct(
   JETBRAINS_CLIENT("JBC", "JetBrains Client", "JetBrainsClient"),
   GATEWAY("GW", "Gateway", "Gateway");
 
-  companion object {
-    fun fromProductCode(productCode: String): IntelliJPlatformProduct? =
-      values().find { it.productCode == productCode || it.alternativeProductCode == productCode }
-
-    fun fromIdeVersion(ideVersion: IdeVersion): IntelliJPlatformProduct? =
-      fromProductCode(ideVersion.productCode)
-  }
 }

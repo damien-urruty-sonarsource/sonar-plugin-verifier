@@ -1,25 +1,19 @@
 package com.jetbrains.pluginverifier.repository
 
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
-import com.jetbrains.pluginverifier.repository.repositories.marketplace.MarketplaceRepository
-import com.jetbrains.pluginverifier.repository.repositories.marketplace.UpdateInfo
+import com.jetbrains.plugin.structure.intellij.version.Version
+import com.jetbrains.pluginverifier.repository.repositories.artifactory.ArtifactoryRepository
+import com.jetbrains.pluginverifier.repository.repositories.artifactory.PluginArtifact
 import org.junit.Assert.*
 import org.junit.Test
 import java.net.URL
 
-class PublicPluginRepositoryTest : BaseRepositoryTest<MarketplaceRepository>() {
+class PublicPluginRepositoryTest : BaseRepositoryTest<ArtifactoryRepository>() {
 
   companion object {
     val repositoryURL = URL("https://plugins.jetbrains.com")
   }
 
-  override fun createRepository() = MarketplaceRepository(repositoryURL)
-
-  @Test
-  fun `last compatible plugins for IDE`() {
-    val plugins = repository.getLastCompatiblePlugins(IdeVersion.createIdeVersion("173.3727.127"))
-    assertFalse(plugins.isEmpty())
-  }
+  override fun createRepository() = ArtifactoryRepository(repositoryURL)
 
   @Test
   fun `browser url`() {
@@ -43,18 +37,8 @@ class PublicPluginRepositoryTest : BaseRepositoryTest<MarketplaceRepository>() {
   @Test
   fun updatesOfNonExistentPlugin() {
     val updates = repository.getAllVersionsOfPlugin("NON_EXISTENT_PLUGIN")
-    assertEquals(emptyList<UpdateInfo>(), updates)
+    assertEquals(emptyList<PluginArtifact>(), updates)
   }
-
-  @Test
-  fun lastUpdate() {
-    val info = repository.getLastCompatibleVersionOfPlugin(ideVersion, "org.jetbrains.kotlin")
-    assertNotNull(info)
-    assertTrue(info!!.updateId > 20000)
-  }
-
-  private val ideVersion: IdeVersion
-    get() = IdeVersion.createIdeVersion("182.3040")
 
   @Test
   fun `find non existent plugin by update id`() {

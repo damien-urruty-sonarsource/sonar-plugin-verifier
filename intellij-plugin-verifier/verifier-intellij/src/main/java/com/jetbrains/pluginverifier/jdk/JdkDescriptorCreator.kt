@@ -9,13 +9,13 @@ import com.jetbrains.plugin.structure.classes.resolvers.CompositeResolver
 import com.jetbrains.plugin.structure.classes.resolvers.JdkFileOrigin
 import com.jetbrains.plugin.structure.classes.resolvers.Resolver
 import com.jetbrains.plugin.structure.classes.resolvers.buildJarOrZipFileResolvers
-import com.jetbrains.plugin.structure.ide.Ide
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.ide.SonarPluginApi
+import com.jetbrains.plugin.structure.intellij.version.Version
 import java.nio.file.Path
 
 object JdkDescriptorCreator {
 
-  fun createBundledJdkDescriptor(ide: Ide, readMode: Resolver.ReadMode = Resolver.ReadMode.FULL): JdkDescriptor? {
+  fun createBundledJdkDescriptor(ide: SonarPluginApi, readMode: Resolver.ReadMode = Resolver.ReadMode.FULL): JdkDescriptor? {
     val bundledJdkPath = listOf(
       ide.idePath.resolve("jbr"),
       ide.idePath.resolve("jre64")
@@ -31,7 +31,7 @@ object JdkDescriptorCreator {
   private fun createJdkDescriptor(
     jdkPath: Path,
     readMode: Resolver.ReadMode,
-    bundledTo: IdeVersion?
+    bundledTo: Version?
   ): JdkDescriptor {
     val fullJavaVersion =
       readFullVersion(jdkPath)

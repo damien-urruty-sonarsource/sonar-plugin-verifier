@@ -8,21 +8,21 @@ import com.jetbrains.plugin.structure.base.utils.closeLogged
 import com.jetbrains.pluginverifier.PluginVerificationDescriptor
 import com.jetbrains.pluginverifier.PluginVerificationTarget
 import com.jetbrains.pluginverifier.filtering.ProblemsFilter
-import com.jetbrains.pluginverifier.ide.IdeDescriptor
+import com.jetbrains.pluginverifier.ide.SonarPluginApiDescriptor
 import com.jetbrains.pluginverifier.repository.files.FileLock
 import com.jetbrains.pluginverifier.tasks.TaskParameters
 
 
 class CheckTrunkApiParams(
-  private val trunkIde: IdeDescriptor,
-  private val releaseIde: IdeDescriptor,
-  private val releaseIdeFile: FileLock,
-  val problemsFilters: List<ProblemsFilter>,
-  val releaseVerificationDescriptors: List<PluginVerificationDescriptor.IDE>,
-  val trunkVerificationDescriptors: List<PluginVerificationDescriptor.IDE>,
-  val releaseVerificationTarget: PluginVerificationTarget.IDE,
-  val trunkVerificationTarget: PluginVerificationTarget.IDE,
-  val excludeExternalBuildClassesSelector: Boolean
+    private val trunkIde: SonarPluginApiDescriptor,
+    private val releaseIde: SonarPluginApiDescriptor,
+    private val releaseIdeFile: FileLock,
+    val problemsFilters: List<ProblemsFilter>,
+    val releaseVerificationDescriptors: List<PluginVerificationDescriptor.IDE>,
+    val trunkVerificationDescriptors: List<PluginVerificationDescriptor.IDE>,
+    val releaseVerificationTarget: PluginVerificationTarget.IDE,
+    val trunkVerificationTarget: PluginVerificationTarget.IDE,
+    val excludeExternalBuildClassesSelector: Boolean
 ) : TaskParameters {
   override val presentableText: String
     get() = buildString {
@@ -30,13 +30,13 @@ class CheckTrunkApiParams(
       appendLine("Release IDE: $releaseIde")
 
       appendLine("Release verifications (${releaseVerificationDescriptors.size}): ")
-      for ((ideVersion, ideVerifications) in releaseVerificationDescriptors.groupBy { it.ideVersion }) {
-        appendLine(ideVersion.asString() + " against " + ideVerifications.joinToString { it.checkedPlugin.presentableName })
+      for ((version, ideVerifications) in releaseVerificationDescriptors.groupBy { it.version }) {
+        appendLine(version.asString() + " against " + ideVerifications.joinToString { it.checkedPlugin.presentableName })
       }
 
       appendLine("Trunk verifications (${releaseVerificationDescriptors.size}): ")
-      for ((ideVersion, ideVerifications) in trunkVerificationDescriptors.groupBy { it.ideVersion }) {
-        appendLine(ideVersion.asString() + " against " + ideVerifications.joinToString { it.checkedPlugin.presentableName })
+      for ((version, ideVerifications) in trunkVerificationDescriptors.groupBy { it.version }) {
+        appendLine(version.asString() + " against " + ideVerifications.joinToString { it.checkedPlugin.presentableName })
       }
     }
 

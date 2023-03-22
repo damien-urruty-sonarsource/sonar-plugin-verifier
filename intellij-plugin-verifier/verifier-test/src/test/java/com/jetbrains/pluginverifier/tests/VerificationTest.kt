@@ -1,7 +1,7 @@
 package com.jetbrains.pluginverifier.tests
 
 import com.jetbrains.plugin.structure.base.plugin.PluginCreationSuccess
-import com.jetbrains.plugin.structure.ide.IdeManager
+import com.jetbrains.plugin.structure.ide.SonarPluginApiManager
 import com.jetbrains.plugin.structure.intellij.plugin.IdePluginManager
 import com.jetbrains.plugin.structure.intellij.plugin.PluginDependencyImpl
 import com.jetbrains.pluginverifier.PluginVerificationResult
@@ -23,7 +23,7 @@ class VerificationTest {
       val idePath = findMockIdePath()
       val pluginFile = findMockPluginJarPath()
 
-      val ide = IdeManager.createManager().createIde(idePath)
+      val ide = SonarPluginApiManager.createManager().createSonarPluginApi(idePath)
       val plugin = (IdePluginManager.createManager().createPlugin(pluginFile) as PluginCreationSuccess).plugin
       verificationResult = VerificationRunner().runPluginVerification(ide, plugin) as PluginVerificationResult.Verified
     }

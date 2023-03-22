@@ -6,7 +6,7 @@ package com.jetbrains.plugin.structure.intellij.problems
 
 import com.jetbrains.plugin.structure.base.plugin.PluginProblem
 import com.jetbrains.plugin.structure.base.problems.InvalidDescriptorProblem
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 
 class PropertyWithDefaultValue(
   descriptorPath: String,
@@ -77,9 +77,9 @@ class InvalidUntilBuild(
 }
 
 class SinceBuildGreaterThanUntilBuild(
-  descriptorPath: String,
-  private val sinceBuild: IdeVersion,
-  private val untilBuild: IdeVersion
+    descriptorPath: String,
+    private val sinceBuild: Version,
+    private val untilBuild: Version
 ) : InvalidDescriptorProblem(descriptorPath) {
   override val detailedMessage: String
     get() = "since build $sinceBuild is greater than until build $untilBuild"
@@ -90,7 +90,7 @@ class SinceBuildGreaterThanUntilBuild(
 
 class ErroneousSinceBuild(
   descriptorPath: String,
-  val sinceBuild: IdeVersion
+  val sinceBuild: Version
 ) : InvalidDescriptorProblem(descriptorPath) {
   override val detailedMessage: String
     get() = "since build '$sinceBuild' must match the multi-part build number format '<branch>.<build_number>.<version>', for example '182.4132.789'. " +
@@ -102,7 +102,7 @@ class ErroneousSinceBuild(
 
 class ErroneousUntilBuild(
   descriptorPath: String,
-  val untilBuild: IdeVersion
+  val untilBuild: Version
 ) : InvalidDescriptorProblem(descriptorPath) {
   override val detailedMessage: String
     get() = "until build '$untilBuild' must match the multi-part build number format, for example '182.4132.789' or '182.*'. " +

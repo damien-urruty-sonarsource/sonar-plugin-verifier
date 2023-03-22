@@ -4,7 +4,7 @@
 
 package com.jetbrains.pluginverifier.repository
 
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 
 /**
  * Represents API of the plugin repository.
@@ -17,15 +17,15 @@ interface PluginRepository {
   val presentableName: String
 
   /**
-   * Returns the latest plugins' versions compatible with [ideVersion].
+   * Returns the latest plugins' versions compatible with [Version].
    */
-  fun getLastCompatiblePlugins(ideVersion: IdeVersion): List<PluginInfo>
+  fun getLastCompatiblePlugins(Version: Version): List<PluginInfo>
 
   /**
    * Returns the last version of the plugin with ID equal to [pluginId]
-   * compatible with [ideVersion].
+   * compatible with [Version].
    */
-  fun getLastCompatibleVersionOfPlugin(ideVersion: IdeVersion, pluginId: String): PluginInfo?
+  fun getLastCompatibleVersionOfPlugin(Version: Version, pluginId: String): PluginInfo?
 
   /**
    * Returns all versions of the plugin with ID equal to [pluginId].
@@ -34,8 +34,8 @@ interface PluginRepository {
 
   /**
    * Returns all plugins declaring module [moduleId].
-   * If [ideVersion] is specified, only plugins compatible with this IDE are returned.
+   * If [Version] is specified, only plugins compatible with this IDE are returned.
    */
-  fun getPluginsDeclaringModule(moduleId: String, ideVersion: IdeVersion?): List<PluginInfo>
+  fun getPluginsDeclaringModule(moduleId: String, Version: Version?): List<PluginInfo>
 
 }

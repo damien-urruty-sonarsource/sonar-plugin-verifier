@@ -1,11 +1,11 @@
 package com.jetbrains.pluginverifier.tests.dependencies
 
 import com.jetbrains.plugin.structure.base.plugin.PluginProblem
-import com.jetbrains.plugin.structure.ide.Ide
+import com.jetbrains.plugin.structure.ide.SonarPluginApi
 import com.jetbrains.plugin.structure.intellij.classes.plugin.IdePluginClassesLocations
 import com.jetbrains.plugin.structure.intellij.plugin.IdePlugin
 import com.jetbrains.plugin.structure.intellij.plugin.PluginDependencyImpl
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.pluginverifier.dependencies.DependenciesGraphBuilder
 import com.jetbrains.pluginverifier.dependencies.MissingDependency
 import com.jetbrains.pluginverifier.dependencies.resolution.DependencyFinder
@@ -65,9 +65,9 @@ class IdeDependencyFinderTest {
       definedModules = setOf("someModule")
     )
 
-    val ideVersion = IdeVersion.createIdeVersion("IU-144")
+    val Version = Version.createIdeVersion("IU-144")
     val ide = MockIde(
-      ideVersion,
+      Version,
       bundledPlugins = listOf(
         MockIdePlugin(
           pluginId = "com.intellij",
@@ -111,12 +111,12 @@ class IdeDependencyFinderTest {
     assertEquals(setOf(MissingDependency(externalModuleDependency, "Failed to fetch plugin.")), dependenciesGraph.getDirectMissingDependencies())
   }
 
-  private fun configureTestIdeDependencyFinder(ide: Ide): DependencyFinder {
+  private fun configureTestIdeDependencyFinder(ide: SonarPluginApi): DependencyFinder {
     val pluginRepository = object : MockPluginRepositoryAdapter() {
-      override fun getPluginsDeclaringModule(moduleId: String, ideVersion: IdeVersion?) =
+      override fun getPluginsDeclaringModule(moduleId: String, Version: Version?) =
         if (moduleId == "externalModule") listOf(createMockPluginInfo("externalPlugin", "1.0")) else emptyList()
 
-      override fun getLastCompatibleVersionOfPlugin(ideVersion: IdeVersion, pluginId: String) =
+      override fun getLastCompatibleVersionOfPlugin(Version: Version, pluginId: String) =
         if (pluginId == "externalPlugin") createMockPluginInfo(pluginId, "1.0") else null
     }
 

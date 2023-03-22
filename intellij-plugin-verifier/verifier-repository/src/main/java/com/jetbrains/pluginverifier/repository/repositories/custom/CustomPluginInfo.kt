@@ -4,7 +4,7 @@
 
 package com.jetbrains.pluginverifier.repository.repositories.custom
 
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.pluginverifier.misc.safeEquals
 import com.jetbrains.pluginverifier.misc.safeHashCode
 import com.jetbrains.pluginverifier.repository.Browseable
@@ -25,8 +25,8 @@ class CustomPluginInfo(
   override val downloadUrl: URL,
   override val browserUrl: URL,
   val sourceCodeUrl: URL?,
-  sinceBuild: IdeVersion?,
-  untilBuild: IdeVersion?
+  sinceBuild: Version?,
+  untilBuild: Version?
 ) : Downloadable, Browseable, PluginInfo(
   pluginId,
   pluginName,

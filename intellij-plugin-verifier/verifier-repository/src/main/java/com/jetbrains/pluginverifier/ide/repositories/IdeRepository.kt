@@ -4,7 +4,7 @@
 
 package com.jetbrains.pluginverifier.ide.repositories
 
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.pluginverifier.ide.AvailableIde
 
 /**
@@ -18,11 +18,10 @@ interface IdeRepository {
   fun fetchIndex(): List<AvailableIde>
 
   /**
-   * Returns [AvailableIde] for this [ideVersion] if it is still available.
+   * Returns [AvailableIde] for this [Version] if it is still available.
    */
   @Throws(InterruptedException::class)
-  fun fetchAvailableIde(ideVersion: IdeVersion): AvailableIde? {
-    val fullIdeVersion = ideVersion.setProductCodeIfAbsent("IU")
-    return fetchIndex().find { it.version == fullIdeVersion }
+  fun fetchAvailableIde(version: Version): AvailableIde? {
+    return fetchIndex().find { it.version == version }
   }
 }

@@ -4,9 +4,9 @@
 
 package com.jetbrains.pluginverifier.jdk
 
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 
-data class JdkVersion(val javaVersion: String, val bundledTo: IdeVersion?) {
+data class JdkVersion(val javaVersion: String, val bundledTo: Version?) {
 
   val isBundled: Boolean get() = bundledTo != null
 

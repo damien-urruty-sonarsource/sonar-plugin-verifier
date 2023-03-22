@@ -4,14 +4,14 @@
 
 package com.jetbrains.pluginverifier.dependencies.resolution
 
-import com.jetbrains.plugin.structure.ide.Ide
+import com.jetbrains.plugin.structure.ide.SonarPluginApi
 import com.jetbrains.pluginverifier.plugin.PluginDetailsCache
 import com.jetbrains.pluginverifier.repository.repositories.bundled.BundledPluginsRepository
 
 /**
  * [DependencyFinder] that searches for plugins among bundled plugins of the [ide].
  */
-class BundledPluginDependencyFinder(val ide: Ide, private val pluginDetailsCache: PluginDetailsCache) : DependencyFinder {
+class BundledPluginDependencyFinder(val ide: SonarPluginApi, private val pluginDetailsCache: PluginDetailsCache) : DependencyFinder {
   private val bundledPluginsRepository = BundledPluginsRepository(ide)
 
   override val presentableName

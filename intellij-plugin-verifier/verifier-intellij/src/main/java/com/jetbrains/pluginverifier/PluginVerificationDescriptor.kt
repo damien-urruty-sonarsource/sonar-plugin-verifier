@@ -4,9 +4,9 @@
 
 package com.jetbrains.pluginverifier
 
-import com.jetbrains.plugin.structure.ide.Ide
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
-import com.jetbrains.pluginverifier.ide.IdeDescriptor
+import com.jetbrains.plugin.structure.ide.SonarPluginApi
+import com.jetbrains.plugin.structure.intellij.version.Version
+import com.jetbrains.pluginverifier.ide.SonarPluginApiDescriptor
 import com.jetbrains.pluginverifier.jdk.JdkVersion
 import com.jetbrains.pluginverifier.repository.PluginInfo
 import com.jetbrains.pluginverifier.resolution.ClassResolverProvider
@@ -25,21 +25,21 @@ sealed class PluginVerificationDescriptor {
   abstract val presentableName: String
 
   class IDE(
-    private val ideDescriptor: IdeDescriptor,
-    override val classResolverProvider: DefaultClassResolverProvider,
-    override val checkedPlugin: PluginInfo
+      private val ideDescriptor: SonarPluginApiDescriptor,
+      override val classResolverProvider: DefaultClassResolverProvider,
+      override val checkedPlugin: PluginInfo
   ) : PluginVerificationDescriptor() {
 
-    val ide: Ide
-      get() = ideDescriptor.ide
+    val ide: SonarPluginApi
+      get() = ideDescriptor.sonarPluginApi
 
-    val ideVersion: IdeVersion
-      get() = ideDescriptor.ideVersion
+    val version: Version
+      get() = ideDescriptor.version
 
     val jdkVersion: JdkVersion
       get() = ideDescriptor.jdkDescriptor.jdkVersion
 
-    override val presentableName get() = "$checkedPlugin against $ideVersion"
+    override val presentableName get() = "$checkedPlugin against $version"
   }
 
   class Plugin(
@@ -65,4 +65,4 @@ fun PluginVerificationDescriptor.Plugin.toTarget(): PluginVerificationTarget.Plu
   PluginVerificationTarget.Plugin(apiPlugin, jdkVersion)
 
 fun PluginVerificationDescriptor.IDE.toTarget(): PluginVerificationTarget.IDE =
-  PluginVerificationTarget.IDE(ideVersion, jdkVersion)
+  PluginVerificationTarget.IDE(version, jdkVersion)

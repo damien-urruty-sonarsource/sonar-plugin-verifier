@@ -111,7 +111,6 @@ class InternalApiUsageProcessor(private val pluginVerificationContext: PluginVer
     if (usage.apiElement.containingClass.packageName.startsWith("com/intellij/internal/statistic")
       && pluginVerificationContext.idePlugin.vendor?.contains("JetBrains", true) != true
       && pluginVerificationContext.verificationDescriptor is PluginVerificationDescriptor.IDE
-      && pluginVerificationContext.verificationDescriptor.ideVersion.baselineVersion >= 211
     ) {
       pluginVerificationContext.registerProblem(InternalFusApiUsageCompatibilityProblem(usage))
     } else {

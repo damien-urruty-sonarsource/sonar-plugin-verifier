@@ -2,9 +2,9 @@
  * Copyright 2000-2020 JetBrains s.r.o. and other contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
-package com.jetbrains.pluginverifier.repository.repositories.marketplace
+package com.jetbrains.pluginverifier.repository.repositories.artifactory
 
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.pluginverifier.repository.Browseable
 import com.jetbrains.pluginverifier.repository.Downloadable
 import com.jetbrains.pluginverifier.repository.PluginInfo
@@ -14,12 +14,12 @@ import java.util.*
 /**
  * Identifier of a plugin hosted on the public Plugin Repository [MarketplaceRepository].
  */
-class UpdateInfo(
+class PluginArtifact(
   pluginId: String,
   pluginName: String,
   version: String,
-  sinceBuild: IdeVersion?,
-  untilBuild: IdeVersion?,
+  sinceBuild: Version?,
+  untilBuild: Version?,
   vendor: String,
   val sourceCodeUrl: URL?,
   override val downloadUrl: URL,
@@ -39,7 +39,7 @@ class UpdateInfo(
   override val presentableName
     get() = "$pluginId:$version (#$updateId)"
 
-  override fun equals(other: Any?) = other is UpdateInfo
+  override fun equals(other: Any?) = other is PluginArtifact
     && pluginId == other.pluginId
     && version == other.version
     && updateId == other.updateId

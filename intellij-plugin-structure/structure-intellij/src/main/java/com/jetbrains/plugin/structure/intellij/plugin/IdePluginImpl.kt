@@ -6,7 +6,7 @@ package com.jetbrains.plugin.structure.intellij.plugin
 
 import com.jetbrains.plugin.structure.base.plugin.PluginIcon
 import com.jetbrains.plugin.structure.base.plugin.ThirdPartyDependency
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import org.jdom2.Document
 import org.jdom2.Element
 import java.nio.file.Path
@@ -18,9 +18,9 @@ class IdePluginImpl : IdePlugin {
 
   override var pluginVersion: String? = null
 
-  override var sinceBuild: IdeVersion? = null
+  override var sinceBuild: Version? = null
 
-  override var untilBuild: IdeVersion? = null
+  override var untilBuild: Version? = null
 
   override var originalFile: Path? = null
 
@@ -68,8 +68,8 @@ class IdePluginImpl : IdePlugin {
 
   override var thirdPartyDependencies: List<ThirdPartyDependency> = emptyList()
 
-  override fun isCompatibleWithIde(ideVersion: IdeVersion) =
-    (sinceBuild == null || sinceBuild!! <= ideVersion) && (untilBuild == null || ideVersion <= untilBuild!!)
+  override fun isCompatibleWithIde(version: Version) =
+    (sinceBuild == null || sinceBuild!! <= version) && (untilBuild == null || version <= untilBuild!!)
 
   override fun toString(): String =
     (pluginId ?: pluginName ?: "<unknown plugin ID>") + (pluginVersion?.let { ":$it" } ?: "")

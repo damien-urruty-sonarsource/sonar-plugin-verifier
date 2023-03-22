@@ -5,7 +5,7 @@
 package com.jetbrains.pluginverifier.repository.repositories.local
 
 import com.jetbrains.plugin.structure.intellij.plugin.IdePlugin
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.pluginverifier.repository.PluginRepository
 import com.jetbrains.pluginverifier.repository.repositories.VERSION_COMPARATOR
 
@@ -20,20 +20,20 @@ class LocalPluginRepository(private val plugins: MutableList<LocalPluginInfo> = 
     return localPluginInfo
   }
 
-  override fun getLastCompatiblePlugins(ideVersion: IdeVersion) =
-    plugins.filter { it.isCompatibleWith(ideVersion) }
+  override fun getLastCompatiblePlugins(Version: Version) =
+    plugins.filter { it.isCompatibleWith(Version) }
       .groupBy { it.pluginId }
       .mapValues { it.value.maxWithOrNull(VERSION_COMPARATOR)!! }
       .values.toList()
 
-  override fun getLastCompatibleVersionOfPlugin(ideVersion: IdeVersion, pluginId: String) =
-    getAllVersionsOfPlugin(pluginId).filter { it.isCompatibleWith(ideVersion) }.maxWithOrNull(VERSION_COMPARATOR)
+  override fun getLastCompatibleVersionOfPlugin(Version: Version, pluginId: String) =
+    getAllVersionsOfPlugin(pluginId).filter { it.isCompatibleWith(Version) }.maxWithOrNull(VERSION_COMPARATOR)
 
   override fun getAllVersionsOfPlugin(pluginId: String) =
     plugins.filter { it.pluginId == pluginId }
 
-  override fun getPluginsDeclaringModule(moduleId: String, ideVersion: IdeVersion?) =
-    plugins.filter { moduleId in it.definedModules && (ideVersion == null || it.isCompatibleWith(ideVersion)) }
+  override fun getPluginsDeclaringModule(moduleId: String, Version: Version?) =
+    plugins.filter { moduleId in it.definedModules && (Version == null || it.isCompatibleWith(Version)) }
 
   override val presentableName
     get() = "Local Plugin Repository"

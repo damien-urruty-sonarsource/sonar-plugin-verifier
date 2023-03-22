@@ -1,8 +1,8 @@
 package com.jetbrains.pluginverifier.tests.filter
 
 import com.jetbrains.plugin.structure.base.plugin.PluginCreationSuccess
-import com.jetbrains.plugin.structure.ide.Ide
-import com.jetbrains.plugin.structure.ide.IdeManager
+import com.jetbrains.plugin.structure.ide.SonarPluginApi
+import com.jetbrains.plugin.structure.ide.SonarPluginApiManager
 import com.jetbrains.plugin.structure.intellij.plugin.IdePlugin
 import com.jetbrains.plugin.structure.intellij.plugin.IdePluginManager
 import com.jetbrains.pluginverifier.PluginVerificationResult
@@ -18,7 +18,7 @@ import org.junit.Test
 class ProblemFilterTest {
     companion object {
         lateinit var verificationRunner: VerificationRunner
-        lateinit var ide: Ide
+        lateinit var ide: SonarPluginApi
         lateinit var plugin: IdePlugin
 
         @BeforeClass
@@ -28,7 +28,7 @@ class ProblemFilterTest {
             val idePath = findMockIdePath()
             val pluginFile = findMockPluginJarPath()
 
-            ide = IdeManager.createManager().createIde(idePath)
+            ide = SonarPluginApiManager.createManager().createSonarPluginApi(idePath)
             plugin = (IdePluginManager.createManager().createPlugin(pluginFile) as PluginCreationSuccess).plugin
             verificationRunner = VerificationRunner()
         }

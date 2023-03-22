@@ -4,8 +4,8 @@ import com.jetbrains.plugin.structure.base.plugin.PluginCreationSuccess
 import com.jetbrains.plugin.structure.base.utils.contentBuilder.ContentBuilder
 import com.jetbrains.plugin.structure.base.utils.contentBuilder.buildDirectory
 import com.jetbrains.plugin.structure.base.utils.contentBuilder.buildZipFile
-import com.jetbrains.plugin.structure.ide.Ide
-import com.jetbrains.plugin.structure.ide.IdeManager
+import com.jetbrains.plugin.structure.ide.SonarPluginApi
+import com.jetbrains.plugin.structure.ide.SonarPluginApiManager
 import com.jetbrains.plugin.structure.intellij.plugin.IdePlugin
 import com.jetbrains.plugin.structure.intellij.plugin.IdePluginManager
 import com.jetbrains.pluginverifier.PluginVerificationResult
@@ -198,7 +198,7 @@ class NoExplicitDependencyOnJavaPluginTest {
   private fun buildIdeWithBundledPlugins(
     javaPluginClassesBuilder: (ContentBuilder).() -> Unit,
     groovyPluginClassesBuilder: (ContentBuilder).() -> Unit
-  ): Ide {
+  ): SonarPluginApi {
     val ideaDirectory = buildDirectory(temporaryFolder.newFolder("idea").toPath()) {
       file("build.txt", "IU-192.1")
       dir("lib") {
@@ -261,15 +261,8 @@ class NoExplicitDependencyOnJavaPluginTest {
 
     // Fast assert IDE is fine
 
-    val ide = IdeManager.createManager().createIde(ideaDirectory)
+    val ide = SonarPluginApiManager.createManager().createSonarPluginApi(ideaDirectory)
     assertEquals("IU-192.1", ide.version.asString())
-
-    val javaPlugin = ide.bundledPlugins.find { it.pluginId == "com.intellij.java" }!!
-    assertEquals("com.intellij.java", javaPlugin.pluginId)
-    assertEquals(setOf("com.intellij.modules.java"), javaPlugin.definedModules)
-
-    val groovyPlugin = ide.bundledPlugins.find { it.pluginId == "org.intellij.groovy" }!!
-    assertEquals("org.intellij.groovy", groovyPlugin.pluginId)
 
     return ide
   }

@@ -13,7 +13,7 @@ import com.jetbrains.plugin.structure.intellij.extractor.PluginBeanExtractor
 import com.jetbrains.plugin.structure.intellij.problems.*
 import com.jetbrains.plugin.structure.intellij.problems.TooLongPropertyValue
 import com.jetbrains.plugin.structure.intellij.resources.ResourceResolver
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.plugin.structure.intellij.xinclude.XIncluder
 import com.jetbrains.plugin.structure.intellij.xinclude.XIncluderException
 import org.jdom2.Document
@@ -185,14 +185,14 @@ internal class PluginCreator private constructor(
 
     val ideaVersionBean = bean.ideaVersion
     if (ideaVersionBean != null) {
-      sinceBuild = if (ideaVersionBean.sinceBuild != null) IdeVersion.createIdeVersion(ideaVersionBean.sinceBuild) else null
+      sinceBuild = if (ideaVersionBean.sinceBuild != null) Version.createIdeVersion(ideaVersionBean.sinceBuild) else null
       var untilBuild: String? = ideaVersionBean.untilBuild
       if (untilBuild != null && untilBuild.isNotEmpty()) {
         if (untilBuild.endsWith(".*")) {
           val idx = untilBuild.lastIndexOf('.')
           untilBuild = untilBuild.substring(0, idx + 1) + Integer.MAX_VALUE
         }
-        this.untilBuild = IdeVersion.createIdeVersion(untilBuild)
+        this.untilBuild = Version.createIdeVersion(untilBuild)
       }
     }
 
@@ -589,7 +589,7 @@ internal class PluginCreator private constructor(
       registerProblem(SinceBuildGreaterThanUntilBuild(descriptorPath, sinceBuild, untilBuild))
     }
 
-    val listenersAvailableSinceBuild = IdeVersion.createIdeVersion("193")
+    val listenersAvailableSinceBuild = Version.createIdeVersion("193")
     if (sinceBuild != null && sinceBuild < listenersAvailableSinceBuild) {
       if (plugin.appContainerDescriptor.listeners.isNotEmpty()) {
         registerProblem(ElementAvailableOnlySinceNewerVersion("applicationListeners", listenersAvailableSinceBuild, sinceBuild, untilBuild))
@@ -810,36 +810,17 @@ internal class PluginCreator private constructor(
     if (sinceBuild == null) {
       registerProblem(SinceBuildNotSpecified(descriptorPath))
     } else {
-      val sinceBuildParsed = IdeVersion.createIdeVersionIfValid(sinceBuild)
+      val sinceBuildParsed = Version.createIdeVersionIfValid(sinceBuild)
       if (sinceBuildParsed == null) {
         registerProblem(InvalidSinceBuild(descriptorPath, sinceBuild))
-      } else {
-        if (sinceBuildParsed.baselineVersion < 130 && sinceBuild.endsWith(".*")) {
-          registerProblem(InvalidSinceBuild(descriptorPath, sinceBuild))
-        }
-        if (sinceBuildParsed.baselineVersion > 999) {
-          registerProblem(ErroneousSinceBuild(descriptorPath, sinceBuildParsed))
-        }
-        if (sinceBuildParsed.productCode.isNotEmpty()) {
-          registerProblem(ProductCodePrefixInBuild(descriptorPath))
-        }
       }
     }
   }
 
   private fun validateUntilBuild(untilBuild: String) {
-    val untilBuildParsed = IdeVersion.createIdeVersionIfValid(untilBuild)
+    val untilBuildParsed = Version.createIdeVersionIfValid(untilBuild)
     if (untilBuildParsed == null) {
       registerProblem(InvalidUntilBuild(descriptorPath, untilBuild))
-    } else {
-      if (untilBuildParsed.baselineVersion > 999) {
-        registerProblem(ErroneousUntilBuild(descriptorPath, untilBuildParsed))
-      } else if (untilBuildParsed.baselineVersion > 400) {
-        registerProblem(SuspiciousUntilBuild(untilBuild))
-      }
-      if (untilBuildParsed.productCode.isNotEmpty()) {
-        registerProblem(ProductCodePrefixInBuild(descriptorPath))
-      }
     }
   }
 

@@ -7,8 +7,8 @@ package com.jetbrains.pluginverifier.dependencies.resolution
 import com.jetbrains.plugin.structure.ide.VersionComparatorUtil
 import com.jetbrains.pluginverifier.repository.PluginInfo
 import com.jetbrains.pluginverifier.repository.PluginRepository
-import com.jetbrains.pluginverifier.repository.repositories.marketplace.MarketplaceRepository
-import com.jetbrains.pluginverifier.repository.repositories.marketplace.UpdateInfo
+import com.jetbrains.pluginverifier.repository.repositories.artifactory.ArtifactoryRepository
+import com.jetbrains.pluginverifier.repository.repositories.artifactory.PluginArtifact
 
 /**
  * [PluginVersionSelector] that selects the _last_ version of the plugin from the repository.
@@ -29,8 +29,8 @@ class LastVersionSelector : PluginVersionSelector {
     pluginRepository: PluginRepository,
     notFoundMessage: String
   ): PluginVersionSelector.Result {
-    val lastVersion = if (pluginRepository is MarketplaceRepository) {
-      allVersions.maxByOrNull { it: PluginInfo -> (it as UpdateInfo).updateId }
+    val lastVersion = if (pluginRepository is ArtifactoryRepository) {
+      allVersions.maxByOrNull { it: PluginInfo -> (it as PluginArtifact).updateId }
     } else {
       allVersions.maxWithOrNull(compareBy(VersionComparatorUtil.COMPARATOR) { it.version })
     }

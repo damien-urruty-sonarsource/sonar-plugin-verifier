@@ -4,7 +4,7 @@
 
 package com.jetbrains.pluginverifier.tasks
 
-import com.jetbrains.pluginverifier.ide.IdeDescriptor
+import com.jetbrains.pluginverifier.ide.SonarPluginApiDescriptor
 import java.io.Closeable
 
 /**
@@ -12,7 +12,7 @@ import java.io.Closeable
  *
  * The parameters can hold allocated resources such as
  * [class files resolvers] [com.jetbrains.plugin.structure.classes.resolvers.Resolver],
- * [IDE descriptors] [IdeDescriptor] and [file locks] [com.jetbrains.pluginverifier.repository.files.FileLock].
+ * [IDE descriptors] [SonarPluginApiDescriptor] and [file locks] [com.jetbrains.pluginverifier.repository.files.FileLock].
  * Thus, the [parameters] [TaskParameters] must be closed after usage.
  */
 interface TaskParameters : Closeable {

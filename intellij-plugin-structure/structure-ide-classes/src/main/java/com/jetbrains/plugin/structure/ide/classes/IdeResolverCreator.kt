@@ -6,30 +6,30 @@ package com.jetbrains.plugin.structure.ide.classes
 
 import com.jetbrains.plugin.structure.base.utils.*
 import com.jetbrains.plugin.structure.classes.resolvers.*
-import com.jetbrains.plugin.structure.ide.Ide
+import com.jetbrains.plugin.structure.ide.SonarPluginApi
 import com.jetbrains.plugin.structure.ide.IdeManagerImpl
 import com.jetbrains.plugin.structure.ide.IdeManagerImpl.Companion.isCompiledCommunity
 import com.jetbrains.plugin.structure.ide.IdeManagerImpl.Companion.isCompiledUltimate
 import com.jetbrains.plugin.structure.ide.IdeManagerImpl.Companion.isDistributionIde
-import com.jetbrains.plugin.structure.ide.InvalidIdeException
+import com.jetbrains.plugin.structure.ide.InvalidSonarPluginApiException
 import com.jetbrains.plugin.structure.ide.getRepositoryLibrariesJars
 import java.nio.file.Path
 
 object IdeResolverCreator {
 
   @JvmStatic
-  fun createIdeResolver(ide: Ide): Resolver {
-    val fileOrigin = JarOrZipFileOrigin(ide.idePath.simpleName, IdeFileOrigin.IdeLibDirectory(ide))
-    return JarFileResolver(ide.idePath, Resolver.ReadMode.FULL, fileOrigin)
+  fun createIdeResolver(sonarPluginApi: SonarPluginApi): Resolver {
+    val fileOrigin = JarOrZipFileOrigin(sonarPluginApi.idePath.simpleName, IdeFileOrigin.IdeLibDirectory(sonarPluginApi))
+    return JarFileResolver(sonarPluginApi.idePath, Resolver.ReadMode.FULL, fileOrigin)
   }
 
   @JvmStatic
-  fun createIdeResolver(readMode: Resolver.ReadMode, ide: Ide): Resolver {
-    val idePath = ide.idePath
+  fun createIdeResolver(readMode: Resolver.ReadMode, sonarPluginApi: SonarPluginApi): Resolver {
+    val idePath = sonarPluginApi.idePath
     return when {
-      isDistributionIde(idePath) -> getJarsResolver(idePath.resolve("lib"), readMode, IdeFileOrigin.IdeLibDirectory(ide))
-      isCompiledCommunity(idePath) || isCompiledUltimate(idePath) -> getIdeResolverFromCompiledSources(idePath, readMode, ide)
-      else -> throw InvalidIdeException(idePath, "Invalid IDE $ide at $idePath")
+      isDistributionIde(idePath) -> getJarsResolver(idePath.resolve("lib"), readMode, IdeFileOrigin.IdeLibDirectory(sonarPluginApi))
+      isCompiledCommunity(idePath) || isCompiledUltimate(idePath) -> getIdeResolverFromCompiledSources(idePath, readMode, sonarPluginApi)
+      else -> throw InvalidSonarPluginApiException(idePath, "Invalid IDE $sonarPluginApi at $idePath")
     }
   }
 
@@ -53,28 +53,28 @@ object IdeResolverCreator {
   // IDE sources can generate so-called "project-structure-mapping.json", which contains mapping
   // between compiled modules and jar files to which these modules are packaged in the final distribution.
   // We can use this mapping to construct a true resolver without irrelevant libraries.
-  private fun getIdeResolverFromCompiledSources(idePath: Path, readMode: Resolver.ReadMode, ide: Ide): Resolver {
+  private fun getIdeResolverFromCompiledSources(idePath: Path, readMode: Resolver.ReadMode, sonarPluginApi: SonarPluginApi): Resolver {
     val resolvers = arrayListOf<Resolver>()
     resolvers.closeOnException {
-      resolvers += getJarsResolver(idePath.resolve("lib"), readMode, IdeFileOrigin.SourceLibDirectory(ide))
-      resolvers += getRepositoryLibrariesResolver(idePath, readMode, ide)
+      resolvers += getJarsResolver(idePath.resolve("lib"), readMode, IdeFileOrigin.SourceLibDirectory(sonarPluginApi))
+      resolvers += getRepositoryLibrariesResolver(idePath, readMode, sonarPluginApi)
 
       val compiledClassesRoot = IdeManagerImpl.getCompiledClassesRoot(idePath)!!
       compiledClassesRoot.listFiles().forEach { moduleRoot ->
-        val fileOrigin = IdeFileOrigin.CompiledModule(ide, moduleRoot.simpleName)
+        val fileOrigin = IdeFileOrigin.CompiledModule(sonarPluginApi, moduleRoot.simpleName)
         resolvers += DirectoryResolver(moduleRoot, fileOrigin, readMode)
       }
 
       if (isCompiledUltimate(idePath)) {
-        resolvers += getJarsResolver(idePath.resolve("community").resolve("lib"), readMode, IdeFileOrigin.SourceLibDirectory(ide))
+        resolvers += getJarsResolver(idePath.resolve("community").resolve("lib"), readMode, IdeFileOrigin.SourceLibDirectory(sonarPluginApi))
       }
       return CompositeResolver.create(resolvers)
     }
   }
 
-  private fun getRepositoryLibrariesResolver(idePath: Path, readMode: Resolver.ReadMode, ide: Ide): Resolver {
+  private fun getRepositoryLibrariesResolver(idePath: Path, readMode: Resolver.ReadMode, sonarPluginApi: SonarPluginApi): Resolver {
     val jars = getRepositoryLibrariesJars(idePath)
-    return CompositeResolver.create(buildJarOrZipFileResolvers(jars, readMode, IdeFileOrigin.RepositoryLibrary(ide)))
+    return CompositeResolver.create(buildJarOrZipFileResolvers(jars, readMode, IdeFileOrigin.RepositoryLibrary(sonarPluginApi)))
   }
 
 }

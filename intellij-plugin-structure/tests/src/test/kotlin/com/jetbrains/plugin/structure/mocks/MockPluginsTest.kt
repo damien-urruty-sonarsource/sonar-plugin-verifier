@@ -16,7 +16,7 @@ import com.jetbrains.plugin.structure.intellij.plugin.IdePluginManager
 import com.jetbrains.plugin.structure.intellij.plugin.PluginDependencyImpl
 import com.jetbrains.plugin.structure.intellij.plugin.PluginXmlUtil.getAllClassesReferencedFromXml
 import com.jetbrains.plugin.structure.intellij.problems.*
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.plugin.structure.rules.FileSystemType
 import org.junit.Assert.*
 import org.junit.Test
@@ -590,8 +590,8 @@ class MockPluginsTest(fileSystemType: FileSystemType) : BasePluginManagerTest<Id
     assertEquals("JetBrains s.r.o.", plugin.vendor)
 
     assertEquals("Plugin description must be at least 40 characters long", plugin.description)
-    assertEquals(IdeVersion.createIdeVersion("141.1009.5"), plugin.sinceBuild)
-    assertEquals(IdeVersion.createIdeVersion("141.9999999"), plugin.untilBuild)
+    assertEquals(Version.createIdeVersion("141.1009.5"), plugin.sinceBuild)
+    assertEquals(Version.createIdeVersion("141.9999999"), plugin.untilBuild)
 
     /*
     <change-notes> element will be included only if the plugin is NOT directory-based.
@@ -621,11 +621,11 @@ class MockPluginsTest(fileSystemType: FileSystemType) : BasePluginManagerTest<Id
 
   private fun checkIdeCompatibility(plugin: IdePlugin) {
     //  <idea-version since-build="141.1009.5" until-build="141.9999999"/>
-    assertTrue(plugin.isCompatibleWithIde(IdeVersion.createIdeVersion("141.1009.5")))
-    assertTrue(plugin.isCompatibleWithIde(IdeVersion.createIdeVersion("141.99999")))
-    assertFalse(plugin.isCompatibleWithIde(IdeVersion.createIdeVersion("142.0")))
-    assertFalse(plugin.isCompatibleWithIde(IdeVersion.createIdeVersion("141.1009.4")))
-    assertFalse(plugin.isCompatibleWithIde(IdeVersion.createIdeVersion("141")))
+    assertTrue(plugin.isCompatibleWithIde(Version.createIdeVersion("141.1009.5")))
+    assertTrue(plugin.isCompatibleWithIde(Version.createIdeVersion("141.99999")))
+    assertFalse(plugin.isCompatibleWithIde(Version.createIdeVersion("142.0")))
+    assertFalse(plugin.isCompatibleWithIde(Version.createIdeVersion("141.1009.4")))
+    assertFalse(plugin.isCompatibleWithIde(Version.createIdeVersion("141")))
   }
 
   private fun checkPluginClassesAndProperties(

@@ -51,9 +51,4 @@ data class NugetSemanticVersion(
   override fun compareTo(other: NugetSemanticVersion) = compareValuesBy(this, other, {it.majorVersion}, {it.minorVersion}, {it.build})
 
   override fun asString() = normalizedVersionString
-
-  override fun asStringWithoutProductCode() = normalizedVersionString
-
-  // These versions can't have product codes
-  override fun setProductCodeIfAbsent(productCode: String) = this
 }

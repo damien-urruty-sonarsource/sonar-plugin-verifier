@@ -3,7 +3,7 @@ package com.jetbrains.pluginverifier.tests.mocks
 import com.jetbrains.plugin.structure.base.plugin.PluginIcon
 import com.jetbrains.plugin.structure.base.plugin.ThirdPartyDependency
 import com.jetbrains.plugin.structure.intellij.plugin.*
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import org.jdom2.Document
 import org.jdom2.Element
 import java.nio.file.Path
@@ -25,8 +25,8 @@ data class MockIdePlugin(
   override val underlyingDocument: Document = Document(Element("idea-plugin")),
   override val optionalDescriptors: List<OptionalPluginDescriptor> = emptyList(),
   override val extensions: Map<String, List<Element>> = hashMapOf(),
-  override val sinceBuild: IdeVersion = IdeVersion.createIdeVersion("IU-163.1"),
-  override val untilBuild: IdeVersion? = null,
+  override val sinceBuild: Version = Version.createIdeVersion("IU-163.1"),
+  override val untilBuild: Version? = null,
   override val definedModules: Set<String> = emptySet(),
   override val originalFile: Path? = null,
   override val appContainerDescriptor: IdePluginContentDescriptor = MutableIdePluginContentDescriptor(),
@@ -40,6 +40,6 @@ data class MockIdePlugin(
 
   override val declaredThemes = emptyList<IdeTheme>()
 
-  override fun isCompatibleWithIde(ideVersion: IdeVersion) =
-    sinceBuild <= ideVersion && (untilBuild == null || ideVersion <= untilBuild)
+  override fun isCompatibleWithIde(Version: Version) =
+    sinceBuild <= Version && (untilBuild == null || Version <= untilBuild)
 }

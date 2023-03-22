@@ -23,11 +23,6 @@ class CountUsagesOfExtensionPointsTask(private val params: CountUsagesOfExtensio
 
   override fun execute(reportage: PluginVerificationReportage, pluginDetailsCache: PluginDetailsCache): TaskResult {
     val ideAndPluginsExtensionPoints = arrayListOf<IdePluginContentDescriptor.ExtensionPoint>()
-    for (idePlugin in params.ideDescriptor.ide.bundledPlugins) {
-      ideAndPluginsExtensionPoints += idePlugin.appContainerDescriptor.extensionPoints
-      ideAndPluginsExtensionPoints += idePlugin.projectContainerDescriptor.extensionPoints
-      ideAndPluginsExtensionPoints += idePlugin.moduleContainerDescriptor.extensionPoints
-    }
     for (additionalIdePluginInfo in params.additionalIdePlugins) {
       pluginDetailsCache.getPluginDetailsCacheEntry(additionalIdePluginInfo).use { cacheResult ->
         if (cacheResult is PluginDetailsCache.Result.Provided) {

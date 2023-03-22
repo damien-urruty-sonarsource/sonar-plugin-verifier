@@ -2,7 +2,7 @@ package com.jetbrains.pluginverifier.tasks.processAllPlugins
 
 import com.jetbrains.plugin.structure.base.utils.closeOnException
 import com.jetbrains.plugin.structure.base.utils.exists
-import com.jetbrains.pluginverifier.ide.IdeDescriptor
+import com.jetbrains.pluginverifier.ide.SonarPluginApiDescriptor
 import com.jetbrains.pluginverifier.misc.retry
 import com.jetbrains.pluginverifier.options.CmdOpts
 import com.jetbrains.pluginverifier.options.OptionsParser
@@ -54,12 +54,12 @@ class ProcessAllPluginsCommand : CommandRunner {
     val outputJson = freeArgs[3].also { require(it.endsWith(".json")) { "must be <output.json> but was $it" } }.let { Paths.get(it) }
 
     reportage.logVerificationStage("Reading IDE $idePath")
-    OptionsParser.createIdeDescriptor(idePath, opts).closeOnException { ideDescriptor ->
-      val compatiblePluginsList = pluginRepository.retry("Request plugins compatible with ${ideDescriptor.ideVersion}") {
-        getLastCompatiblePlugins(ideDescriptor.ideVersion)
+    OptionsParser.createSonarPluginApiDescriptor(idePath, opts).closeOnException { ideDescriptor ->
+      val compatiblePluginsList = pluginRepository.retry("Request plugins compatible with ${ideDescriptor.version}") {
+        getLastCompatiblePlugins(ideDescriptor.version)
       }
       val localPluginRepository = LocalPluginRepositoryFactory.createLocalPluginRepository(idePluginsRoot)
-      val additionalIdePlugins = localPluginRepository.getLastCompatiblePlugins(ideDescriptor.ideVersion)
+      val additionalIdePlugins = localPluginRepository.getLastCompatiblePlugins(ideDescriptor.version)
 
       return CountUsagesOfExtensionPointsParameters(ideDescriptor, additionalIdePlugins, compatiblePluginsList, outputJson)
     }
@@ -67,13 +67,13 @@ class ProcessAllPluginsCommand : CommandRunner {
 }
 
 class CountUsagesOfExtensionPointsParameters(
-  val ideDescriptor: IdeDescriptor,
-  val additionalIdePlugins: List<PluginInfo>,
-  val compatiblePluginsList: List<PluginInfo>,
-  val outputJson: Path
+    val ideDescriptor: SonarPluginApiDescriptor,
+    val additionalIdePlugins: List<PluginInfo>,
+    val compatiblePluginsList: List<PluginInfo>,
+    val outputJson: Path
 ) : TaskParameters {
   override val presentableText
-    get() = "Count usages of IDE ${ideDescriptor.ideVersion} extension points inside all compatible plugins available in the Marketplace"
+    get() = "Count usages of IDE ${ideDescriptor.version} extension points inside all compatible plugins available in the Marketplace"
 
   override fun createTask() = CountUsagesOfExtensionPointsTask(this)
 

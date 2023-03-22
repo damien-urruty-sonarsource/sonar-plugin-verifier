@@ -2,12 +2,12 @@
  * Copyright 2000-2020 JetBrains s.r.o. and other contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
-package com.jetbrains.pluginverifier.repository.repositories.marketplace
+package com.jetbrains.pluginverifier.repository.repositories.artifactory
 
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import com.google.common.cache.LoadingCache
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.pluginverifier.repository.PluginRepository
 import org.jetbrains.intellij.pluginRepository.PluginRepositoryFactory
 import org.jetbrains.intellij.pluginRepository.model.IntellijUpdateMetadata
@@ -19,57 +19,57 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
-class MarketplaceRepository(val repositoryURL: URL = DEFAULT_URL) : PluginRepository {
+class ArtifactoryRepository(val repositoryURL: URL = DEFAULT_URL) : PluginRepository {
 
   private val pluginRepositoryInstance = PluginRepositoryFactory.create(host = repositoryURL.toExternalForm())
 
   //This mapping never changes. Updates in Marketplace repository have constant plugin ID.
   private val updateIdToPluginIdMapping = ConcurrentHashMap<Int, Int>()
 
-  private val metadataCache: LoadingCache<Pair<PluginId, UpdateId>, Optional<UpdateInfo>> = CacheBuilder.newBuilder()
+  private val metadataCache: LoadingCache<Pair<PluginId, UpdateId>, Optional<PluginArtifact>> = CacheBuilder.newBuilder()
     .expireAfterWrite(5, TimeUnit.MINUTES)
-    .build(object : CacheLoader<Pair<PluginId, UpdateId>, Optional<UpdateInfo>>() {
-      override fun load(key: Pair<PluginId, UpdateId>): Optional<UpdateInfo> {
+    .build(object : CacheLoader<Pair<PluginId, UpdateId>, Optional<PluginArtifact>>() {
+      override fun load(key: Pair<PluginId, UpdateId>): Optional<PluginArtifact> {
         //Loading is required => this key is outdated => will request in batch and put to the cache.
         return Optional.empty()
       }
     })
 
-  override fun getLastCompatiblePlugins(ideVersion: IdeVersion): List<UpdateInfo> =
-    getLastCompatiblePlugins(ideVersion, "")
+  override fun getLastCompatiblePlugins(version: Version): List<PluginArtifact> =
+    getLastCompatiblePlugins(version, "")
 
-  fun getLastCompatiblePlugins(ideVersion: IdeVersion, channel: String): List<UpdateInfo> {
+  fun getLastCompatiblePlugins(version: Version, channel: String): List<PluginArtifact> {
     val pluginManager = pluginRepositoryInstance.pluginManager
     @Suppress("DEPRECATION")
-    val pluginsXmlIds = pluginManager.getCompatiblePluginsXmlIds(ideVersion.asString(), MAX_AVAILABLE_PLUGINS_IN_REPOSITORY, 0)
-    val updates = pluginManager.searchCompatibleUpdates(pluginsXmlIds, ideVersion.asString(), channel)
+    val pluginsXmlIds = pluginManager.getCompatiblePluginsXmlIds(version.asString(), 10_000, 0)
+    val updates = pluginManager.searchCompatibleUpdates(pluginsXmlIds, version.asString(), channel)
     val pluginIdAndUpdateIds = updates.map { it.pluginId to it.id }
     return getPluginInfosForManyPluginIdsAndUpdateIds(pluginIdAndUpdateIds).values.toList()
   }
 
-  override fun getLastCompatibleVersionOfPlugin(ideVersion: IdeVersion, pluginId: String): UpdateInfo? {
-    val compatibleUpdates = pluginRepositoryInstance.pluginManager.searchCompatibleUpdates(listOf(pluginId), ideVersion.asString())
+  override fun getLastCompatibleVersionOfPlugin(version: Version, pluginId: String): PluginArtifact? {
+    val compatibleUpdates = pluginRepositoryInstance.pluginManager.searchCompatibleUpdates(listOf(pluginId), version.asString())
     val compatibleUpdate = compatibleUpdates.firstOrNull() ?: return null
     return getOrRequestInfo(compatibleUpdate.pluginId, compatibleUpdate.id)
   }
 
-  override fun getAllVersionsOfPlugin(pluginId: String): List<UpdateInfo> {
+  override fun getAllVersionsOfPlugin(pluginId: String): List<PluginArtifact> {
     val pluginBean = pluginRepositoryInstance.pluginManager.getPluginByXmlId(pluginId) ?: return emptyList()
     val pluginVersions = pluginRepositoryInstance.pluginManager.getPluginVersions(pluginBean.id)
     val pluginIdAndUpdateIds = pluginVersions.map { pluginBean.id to it.id }
     return getPluginInfosForManyPluginIdsAndUpdateIds(pluginIdAndUpdateIds).values.toList()
   }
 
-  override fun getPluginsDeclaringModule(moduleId: String, ideVersion: IdeVersion?): List<UpdateInfo> {
+  override fun getPluginsDeclaringModule(moduleId: String, version: Version?): List<PluginArtifact> {
     val plugins = pluginRepositoryInstance.pluginManager.searchCompatibleUpdates(
-      module = moduleId, build = ideVersion?.asString().orEmpty()
+      module = moduleId, build = version?.asString().orEmpty()
     )
     val pluginIdAndUpdateIds = plugins.map { it.pluginId to it.id }
     return getPluginInfosForManyPluginIdsAndUpdateIds(pluginIdAndUpdateIds).values.toList()
   }
 
-  private fun createAndCacheUpdateInfo(metadata: IntellijUpdateMetadata, pluginId: Int): UpdateInfo {
-    val updateInfo = UpdateInfo(
+  private fun createAndCacheUpdateInfo(metadata: IntellijUpdateMetadata, pluginId: Int): PluginArtifact {
+    val updateInfo = PluginArtifact(
       metadata.xmlId,
       metadata.name,
       metadata.version,
@@ -97,12 +97,12 @@ class MarketplaceRepository(val repositoryURL: URL = DEFAULT_URL) : PluginReposi
     return pluginId
   }
 
-  fun getPluginInfoByUpdateId(updateId: Int): UpdateInfo? {
+  fun getPluginInfoByUpdateId(updateId: Int): PluginArtifact? {
     val pluginId = getPluginIntIdByUpdateId(updateId) ?: return null
     return getOrRequestInfo(pluginId, updateId)
   }
 
-  private fun getCachedInfo(pluginId: Int, updateId: Int): UpdateInfo? {
+  private fun getCachedInfo(pluginId: Int, updateId: Int): PluginArtifact? {
     val optional = metadataCache[pluginId to updateId]
     if (optional.isPresent) {
       //Return up-to-date metadata.
@@ -111,7 +111,7 @@ class MarketplaceRepository(val repositoryURL: URL = DEFAULT_URL) : PluginReposi
     return null
   }
 
-  private fun getOrRequestInfo(pluginId: Int, updateId: Int): UpdateInfo? {
+  private fun getOrRequestInfo(pluginId: Int, updateId: Int): PluginArtifact? {
     val cachedInfo = getCachedInfo(pluginId, updateId)
     if (cachedInfo != null) {
       return cachedInfo
@@ -122,7 +122,7 @@ class MarketplaceRepository(val repositoryURL: URL = DEFAULT_URL) : PluginReposi
   }
 
   @Suppress("unused") //Used in API Watcher.
-  fun getPluginInfosForManyUpdateIds(updateIds: List<Int>): Map<Int, UpdateInfo> {
+  fun getPluginInfosForManyUpdateIds(updateIds: List<Int>): Map<Int, PluginArtifact> {
     val pluginAndUpdateIds = arrayListOf<Pair<PluginId, UpdateId>>()
     for (updateId in updateIds) {
       val pluginId = getPluginIntIdByUpdateId(updateId)
@@ -138,9 +138,9 @@ class MarketplaceRepository(val repositoryURL: URL = DEFAULT_URL) : PluginReposi
     return pluginRepositoryInstance.pluginManager.getPluginChannels(pluginBean.id)
   }
 
-  fun getPluginInfosForManyPluginIdsAndUpdateIds(pluginAndUpdateIds: List<Pair<Int, Int>>): Map<Int, UpdateInfo> {
+  fun getPluginInfosForManyPluginIdsAndUpdateIds(pluginAndUpdateIds: List<Pair<Int, Int>>): Map<Int, PluginArtifact> {
     val toRequest = arrayListOf<Pair<PluginId, UpdateId>>()
-    val result = hashMapOf<UpdateId, UpdateInfo>()
+    val result = hashMapOf<UpdateId, PluginArtifact>()
     for ((pluginId, updateId) in pluginAndUpdateIds) {
       val cachedInfo = getCachedInfo(pluginId, updateId)
       if (cachedInfo != null) {
@@ -166,11 +166,11 @@ class MarketplaceRepository(val repositoryURL: URL = DEFAULT_URL) : PluginReposi
   private fun getDownloadUrl(updateId: Int) =
     URL("${repositoryURL.toExternalForm().trimEnd('/')}/plugin/download/?noStatistic=true&updateId=$updateId")
 
-  private fun String?.prepareIdeVersion(): IdeVersion? =
+  private fun String?.prepareIdeVersion(): Version? =
     if (this == null || this == "" || this == "0.0") {
       null
     } else {
-      IdeVersion.createIdeVersionIfValid(this)
+      Version.createIdeVersionIfValid(this)
     }
 
   private fun parseSourceCodeUrl(url: String?): URL? {
@@ -185,17 +185,11 @@ class MarketplaceRepository(val repositoryURL: URL = DEFAULT_URL) : PluginReposi
   }
 
   override val presentableName
-    get() = "Marketplace ${repositoryURL.toExternalForm()}"
+    get() = "Repox ${repositoryURL.toExternalForm()}"
 
   override fun toString() = presentableName
-
   private companion object {
 
     private val DEFAULT_URL = URL("https://plugins.jetbrains.com")
-
-    //In the late future this will need to be updated. Currently, there are ~= 4000 plugins in the repository available.
-    // This magic constant is the limit of the Elastic Search used in the Plugin Search Service.
-    // Contact Marketplace team for details.
-    private const val MAX_AVAILABLE_PLUGINS_IN_REPOSITORY = 10000
   }
 }

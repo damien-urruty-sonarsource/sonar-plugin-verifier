@@ -10,7 +10,7 @@ import com.jetbrains.plugin.structure.intellij.plugin.IdePlugin
 import com.jetbrains.plugin.structure.intellij.plugin.IdePluginManager
 import com.jetbrains.plugin.structure.intellij.problems.*
 import com.jetbrains.plugin.structure.intellij.problems.TooLongPropertyValue
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.plugin.structure.rules.FileSystemType
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -303,7 +303,7 @@ class InvalidPluginsTest(fileSystemType: FileSystemType) : BasePluginManagerTest
       perfectXmlBuilder.modify {
         ideaVersion = """<idea-version since-build="131.1" until-build="120.1"/>"""
       },
-      listOf(SinceBuildGreaterThanUntilBuild("plugin.xml", IdeVersion.createIdeVersion("131.1"), IdeVersion.createIdeVersion("120.1")))
+      listOf(SinceBuildGreaterThanUntilBuild("plugin.xml", Version.createIdeVersion("131.1"), Version.createIdeVersion("120.1")))
     )
   }
 
@@ -583,13 +583,13 @@ class InvalidPluginsTest(fileSystemType: FileSystemType) : BasePluginManagerTest
     `test invalid plugin xml`(
       perfectXmlBuilder.modify {
         ideaVersion = """<idea-version since-build="2018.1"/>"""
-      }, listOf(ErroneousSinceBuild("plugin.xml", IdeVersion.createIdeVersion("2018.1")))
+      }, listOf(ErroneousSinceBuild("plugin.xml", Version.createIdeVersion("2018.1")))
     )
 
     `test invalid plugin xml`(
         perfectXmlBuilder.modify {
           ideaVersion = """<idea-version since-build="171.1" until-build="2018.*"/>"""
-        }, listOf(ErroneousUntilBuild("plugin.xml", IdeVersion.createIdeVersion("2018.*")))
+        }, listOf(ErroneousUntilBuild("plugin.xml", Version.createIdeVersion("2018.*")))
     )
   }
 
@@ -696,9 +696,9 @@ class InvalidPluginsTest(fileSystemType: FileSystemType) : BasePluginManagerTest
       listOf(
         ElementAvailableOnlySinceNewerVersion(
           "applicationListeners",
-          IdeVersion.createIdeVersion("193"),
-          IdeVersion.createIdeVersion("181.1"),
-          IdeVersion.createIdeVersion("193.1")
+          Version.createIdeVersion("193"),
+          Version.createIdeVersion("181.1"),
+          Version.createIdeVersion("193.1")
         )
       )
     )
@@ -718,9 +718,9 @@ class InvalidPluginsTest(fileSystemType: FileSystemType) : BasePluginManagerTest
       listOf(
         ElementAvailableOnlySinceNewerVersion(
           "projectListeners",
-          IdeVersion.createIdeVersion("193"),
-          IdeVersion.createIdeVersion("181.1"),
-          IdeVersion.createIdeVersion("193.1")
+          Version.createIdeVersion("193"),
+          Version.createIdeVersion("181.1"),
+          Version.createIdeVersion("193.1")
         )
       )
     )

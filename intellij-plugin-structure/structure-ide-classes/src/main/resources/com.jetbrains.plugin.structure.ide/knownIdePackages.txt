@@ -63,7 +63,7 @@ com.intellij.history
 com.intellij.html
 com.intellij.htmltools
 com.intellij.icons
-com.intellij.ide
+com.intellij.sonarPluginApi
 com.intellij.impl
 com.intellij.indentation
 com.intellij.index
@@ -208,7 +208,7 @@ com.jetbrains.clones
 com.jetbrains.cloudconfig
 com.jetbrains.debugger
 com.jetbrains.firefox
-com.jetbrains.ide
+com.jetbrains.sonarPluginApi
 com.jetbrains.javascript
 com.jetbrains.jsonSchema
 com.jetbrains.ls
@@ -245,7 +245,7 @@ org.jetbrains.dekaf
 org.jetbrains.generate
 org.jetbrains.git4idea
 org.jetbrains.groovy
-org.jetbrains.ide
+org.jetbrains.sonarPluginApi
 org.jetbrains.idea
 org.jetbrains.io
 org.jetbrains.java

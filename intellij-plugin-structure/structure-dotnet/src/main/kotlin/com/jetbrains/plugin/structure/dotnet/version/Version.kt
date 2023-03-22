@@ -3,7 +3,7 @@ package com.jetbrains.plugin.structure.dotnet.version
 import com.jetbrains.plugin.structure.base.utils.Version
 import kotlin.math.min
 
-data class ReSharperVersion(val components: List<Int>, override val productCode: String): Version<ReSharperVersion> {
+data class ReSharperVersion(val components: List<Int>, val productCode: String): Version<ReSharperVersion> {
   override fun compareTo(other: ReSharperVersion): Int {
    val compareProductCodes = productCode.compareTo(other.productCode)
     if (productCode.isNotEmpty() && other.productCode.isNotEmpty() && compareProductCodes != 0) {
@@ -21,7 +21,6 @@ data class ReSharperVersion(val components: List<Int>, override val productCode:
   }
 
   override fun asString() = asString(true)
-  override fun asStringWithoutProductCode() = asString(false)
   override fun toString() = asString()
 
   companion object {
@@ -58,11 +57,4 @@ data class ReSharperVersion(val components: List<Int>, override val productCode:
 
     return builder.toString()
   }
-
-  override fun setProductCodeIfAbsent(productCode: String) =
-    if (this.productCode.isEmpty())
-      fromString("$productCode-" + asStringWithoutProductCode())
-    else {
-      this
-    }
 }

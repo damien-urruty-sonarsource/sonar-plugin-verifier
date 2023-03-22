@@ -4,7 +4,7 @@
 
 package com.jetbrains.pluginverifier
 
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.pluginverifier.jdk.JdkVersion
 import com.jetbrains.pluginverifier.repository.PluginInfo
 
@@ -13,8 +13,8 @@ import com.jetbrains.pluginverifier.repository.PluginInfo
  */
 sealed class PluginVerificationTarget {
 
-  data class IDE(val ideVersion: IdeVersion, val jdkVersion: JdkVersion) : PluginVerificationTarget() {
-    override fun toString() = ideVersion.asString()
+  data class IDE(val Version: Version, val jdkVersion: JdkVersion) : PluginVerificationTarget() {
+    override fun toString() = Version.asString()
   }
 
   data class Plugin(val plugin: PluginInfo, val jdkVersion: JdkVersion) : PluginVerificationTarget() {

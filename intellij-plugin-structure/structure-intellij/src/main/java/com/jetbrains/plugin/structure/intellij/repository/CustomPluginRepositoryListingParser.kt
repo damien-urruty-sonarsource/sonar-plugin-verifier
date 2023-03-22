@@ -1,6 +1,6 @@
 package com.jetbrains.plugin.structure.intellij.repository
 
-import com.jetbrains.plugin.structure.intellij.version.IdeVersion
+import com.jetbrains.plugin.structure.intellij.version.Version
 import org.w3c.dom.Element
 import org.xml.sax.SAXParseException
 import org.xml.sax.helpers.DefaultHandler
@@ -14,16 +14,16 @@ import javax.xml.parsers.DocumentBuilderFactory
 object CustomPluginRepositoryListingParser {
 
   data class PluginInfo(
-    val pluginId: String,
-    val pluginName: String,
-    val version: String,
-    val vendor: String?,
-    val repositoryUrl: URL,
-    val downloadUrl: URL,
-    val browserUrl: URL,
-    val sourceCodeUrl: URL?,
-    val sinceBuild: IdeVersion?,
-    val untilBuild: IdeVersion?
+      val pluginId: String,
+      val pluginName: String,
+      val version: String,
+      val vendor: String?,
+      val repositoryUrl: URL,
+      val downloadUrl: URL,
+      val browserUrl: URL,
+      val sourceCodeUrl: URL?,
+      val sinceBuild: Version?,
+      val untilBuild: Version?
   )
 
   fun parseListOfPlugins(
@@ -131,9 +131,9 @@ object CustomPluginRepositoryListingParser {
     return result
   }
 
-  private fun parseSinceAndUntil(ideaVersionElement: Element?): Pair<IdeVersion?, IdeVersion?> {
-    val sinceBuild = ideaVersionElement?.getAttributeOrNull("since-build")?.let { IdeVersion.createIdeVersionIfValid(it) }
-    val untilBuild = ideaVersionElement?.getAttributeOrNull("until-build")?.let { IdeVersion.createIdeVersionIfValid(it) }
+  private fun parseSinceAndUntil(ideaVersionElement: Element?): Pair<Version?, Version?> {
+    val sinceBuild = ideaVersionElement?.getAttributeOrNull("since-build")?.let { Version.createIdeVersionIfValid(it) }
+    val untilBuild = ideaVersionElement?.getAttributeOrNull("until-build")?.let { Version.createIdeVersionIfValid(it) }
     return sinceBuild to untilBuild
   }
 

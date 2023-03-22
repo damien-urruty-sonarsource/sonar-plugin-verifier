@@ -5,7 +5,7 @@
 package com.jetbrains.pluginverifier.dependencies
 
 import com.jetbrains.plugin.structure.base.plugin.PluginProblem
-import com.jetbrains.plugin.structure.ide.Ide
+import com.jetbrains.plugin.structure.ide.SonarPluginApi
 import com.jetbrains.plugin.structure.intellij.plugin.IdePlugin
 import com.jetbrains.plugin.structure.intellij.plugin.PluginDependency
 import com.jetbrains.plugin.structure.intellij.plugin.PluginDependencyImpl
@@ -26,7 +26,7 @@ class DependenciesGraphBuilder(private val dependencyFinder: DependencyFinder) {
     const val ALL_MODULES_ID = "com.intellij.modules.all"
   }
 
-  fun buildDependenciesGraph(plugin: IdePlugin, ide: Ide): Pair<DependenciesGraph, List<DependencyFinder.Result>> {
+  fun buildDependenciesGraph(plugin: IdePlugin, ide: SonarPluginApi): Pair<DependenciesGraph, List<DependencyFinder.Result>> {
     val graph = DefaultDirectedGraph<DepVertex, DepEdge>(DepEdge::class.java)
     val missingDependencies = hashMapOf<DepId, MutableSet<DepMissingVertex>>()
 
@@ -152,16 +152,12 @@ class DependenciesGraphBuilder(private val dependencyFinder: DependencyFinder) {
    */
   private fun maybeAddOptionalJavaPluginDependency(
     plugin: IdePlugin,
-    ide: Ide,
+    ide: SonarPluginApi,
     graph: Graph<DepVertex, DepEdge>,
     missingDependencies: MutableMap<DepId, MutableSet<DepMissingVertex>>
   ) {
-    if (ide.getPluginByModule(ALL_MODULES_ID) == null) {
-      return
-    }
     val isLegacyPlugin = plugin.dependencies.none { it.isModule }
-    val isCustomPlugin = ide.bundledPlugins.none { it.pluginId == plugin.pluginId }
-    if (isCustomPlugin || isLegacyPlugin) {
+    if (isLegacyPlugin) {
       val dependencyResult = dependencyFinder.findPluginDependency(JAVA_MODULE_ID, true)
       val javaPlugin = when (dependencyResult) {
         is DependencyFinder.Result.DetailsProvided -> {
@@ -183,19 +179,10 @@ class DependenciesGraphBuilder(private val dependencyFinder: DependencyFinder) {
    * We would like to emulate this behaviour by forcibly adding such plugins to the verification classpath.
    */
   private fun maybeAddBundledPluginsWithUseIdeaClassLoader(
-    ide: Ide,
+    ide: SonarPluginApi,
     graph: Graph<DepVertex, DepEdge>,
     missingDependencies: MutableMap<DepId, MutableSet<DepMissingVertex>>
   ) {
-    for (bundledPlugin in ide.bundledPlugins) {
-      if (bundledPlugin.useIdeClassLoader && bundledPlugin.pluginId != null) {
-        val dependencyId = bundledPlugin.pluginId!!
-        val pluginDependency = PluginDependencyImpl(dependencyId, true, false)
-        val dependencyResult = dependencyFinder.findPluginDependency(pluginDependency.id, pluginDependency.isModule)
-        val bundledVertex = DepVertex(bundledPlugin, dependencyResult)
-        addTransitiveDependencies(graph, bundledVertex, missingDependencies)
-      }
-    }
   }
 
 }

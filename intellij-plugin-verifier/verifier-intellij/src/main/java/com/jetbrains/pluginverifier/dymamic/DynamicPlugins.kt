@@ -31,25 +31,6 @@ object DynamicPlugins {
           "$MESSAGE because it declares $area components: " + formatListOfNames(descriptor.components.map { it.implementationClass })
         }
 
-      val declaredExtensions = idePlugin.extensions.keys
-
-      val ide = verificationDescriptor.ide
-
-      val nonDynamicExtensions = arrayListOf<String>()
-      for (epName in declaredExtensions) {
-        val extensionPoint = ide.bundledPlugins.asSequence()
-          .filterIsInstance<IdePluginImpl>()
-          .mapNotNull { it.findExtensionPoint(epName) }
-          .firstOrNull()
-        if (extensionPoint != null && !extensionPoint.isDynamic) {
-          nonDynamicExtensions += extensionPoint.extensionPointName
-        }
-      }
-      if (nonDynamicExtensions.isNotEmpty()) {
-        reasonsNotToLoadUnloadWithoutRestart += "$MESSAGE because it declares non-dynamic extensions: " +
-          formatListOfNames(nonDynamicExtensions)
-      }
-
 
       val allActionsAndGroups = getAllActionsAndGroupsRecursively(idePlugin)
 

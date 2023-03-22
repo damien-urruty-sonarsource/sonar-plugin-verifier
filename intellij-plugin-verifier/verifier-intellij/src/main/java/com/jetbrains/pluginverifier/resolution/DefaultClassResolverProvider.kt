@@ -11,7 +11,7 @@ import com.jetbrains.plugin.structure.classes.resolvers.Resolver
 import com.jetbrains.pluginverifier.createPluginResolver
 import com.jetbrains.pluginverifier.dependencies.DependenciesGraphBuilder
 import com.jetbrains.pluginverifier.dependencies.resolution.DependencyFinder
-import com.jetbrains.pluginverifier.ide.IdeDescriptor
+import com.jetbrains.pluginverifier.ide.SonarPluginApiDescriptor
 import com.jetbrains.pluginverifier.plugin.PluginDetails
 import com.jetbrains.pluginverifier.plugin.PluginDetailsCache
 import com.jetbrains.pluginverifier.verifiers.packages.PackageFilter
@@ -20,7 +20,7 @@ import java.io.Closeable
 
 class DefaultClassResolverProvider(
   private val dependencyFinder: DependencyFinder,
-  private val ideDescriptor: IdeDescriptor,
+  private val ideDescriptor: SonarPluginApiDescriptor,
   private val externalClassesPackageFilter: PackageFilter
 ) : ClassResolverProvider {
 
@@ -30,7 +30,7 @@ class DefaultClassResolverProvider(
       val pluginResolver = checkedPluginDetails.pluginClassesLocations.createPluginResolver()
 
       val (dependenciesGraph, dependenciesResults) =
-        DependenciesGraphBuilder(dependencyFinder).buildDependenciesGraph(checkedPluginDetails.idePlugin, ideDescriptor.ide)
+        DependenciesGraphBuilder(dependencyFinder).buildDependenciesGraph(checkedPluginDetails.idePlugin, ideDescriptor.sonarPluginApi)
 
       closeableResources += dependenciesResults
 
