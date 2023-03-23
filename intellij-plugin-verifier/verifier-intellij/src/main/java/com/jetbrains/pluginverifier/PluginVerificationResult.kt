@@ -84,8 +84,8 @@ sealed class PluginVerificationResult(
               append("optional ")
             }
             append("dependency".pluralize(allDirectMissingDependencies.size))
-            if (verificationTarget is PluginVerificationTarget.IDE) {
-              append(" in the target IDE " + verificationTarget.Version.asString())
+            if (verificationTarget is PluginVerificationTarget.SonarPluginApi) {
+              append(" in the target IDE " + verificationTarget.version.asString())
             }
           }
         }

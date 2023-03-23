@@ -8,7 +8,7 @@ import com.jetbrains.plugin.structure.base.plugin.PluginCreationFail
 import com.jetbrains.plugin.structure.base.plugin.PluginCreationSuccess
 import com.jetbrains.plugin.structure.base.utils.extension
 import com.jetbrains.plugin.structure.base.utils.isDirectory
-import com.jetbrains.plugin.structure.intellij.plugin.IdePluginManager
+import com.jetbrains.plugin.structure.intellij.plugin.SonarPluginManager
 import com.jetbrains.pluginverifier.repository.PluginRepository
 import com.jetbrains.pluginverifier.repository.repositories.local.LocalPluginRepositoryFactory.createLocalPluginRepository
 import java.nio.file.Files
@@ -33,7 +33,7 @@ object LocalPluginRepositoryFactory {
 
     val localPluginRepository = LocalPluginRepository()
     for (pluginFile in pluginFiles) {
-      with(IdePluginManager.createManager().createPlugin(pluginFile)) {
+      with(SonarPluginManager.createManager().createPlugin(pluginFile)) {
         when (this) {
           is PluginCreationSuccess -> localPluginRepository.addLocalPlugin(plugin)
           is PluginCreationFail -> Unit

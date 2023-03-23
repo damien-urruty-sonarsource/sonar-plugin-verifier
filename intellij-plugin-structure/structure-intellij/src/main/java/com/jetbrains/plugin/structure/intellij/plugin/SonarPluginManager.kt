@@ -16,16 +16,16 @@ import com.jetbrains.plugin.structure.intellij.resources.CompositeResourceResolv
 import com.jetbrains.plugin.structure.intellij.resources.DefaultResourceResolver
 import com.jetbrains.plugin.structure.intellij.resources.ResourceResolver
 import com.jetbrains.plugin.structure.intellij.utils.JDOMUtil
-import com.jetbrains.plugin.structure.intellij.version.Version
 import org.jdom2.input.JDOMParseException
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 import java.nio.file.*
 import java.util.*
+import java.util.jar.Manifest
 import java.util.stream.Collectors
 
-class IdePluginManager private constructor(
+class SonarPluginManager private constructor(
   private val myResourceResolver: ResourceResolver,
   private val extractDirectory: Path
 ) : PluginManager<IdePlugin> {
@@ -40,32 +40,30 @@ class IdePluginManager private constructor(
     parentPlugin: PluginCreator?
   ): PluginCreator {
     val zipFs = try {
-      FileSystems.newFileSystem(jarFile, IdePluginManager::class.java.classLoader)
+      FileSystems.newFileSystem(jarFile, SonarPluginManager::class.java.classLoader)
     } catch (e: Throwable) {
       LOG.warn("Unable to extract $jarFile (searching for $descriptorPath): ${e.getShortExceptionMessage()}")
       return createInvalidPlugin(jarFile, descriptorPath, UnableToExtractZip())
     }
     try {
       zipFs.use { jarFileSystem ->
-//        val entryName = "$META_INF/$descriptorPath"
-//        val entry = jarFileSystem.getPath(toCanonicalPath(entryName))
-//        return if (Files.exists(entry)) {
+        val entryName = "$META_INF/$descriptorPath"
+        val entry = jarFileSystem.getPath(toCanonicalPath(entryName))
+        return if (Files.exists(entry)) {
           try {
-//            val document = Files.newInputStream(entry).use { JDOMUtil.loadDocument(it) }
-//            val icons = getIconsFromJarFile(jarFileSystem)
-//            val dependencies = getThirdPartyDependenciesFromJarFile(jarFileSystem)
-            val plugin = createPlugin(jarFile, descriptorPath, null, validateDescriptor, null, null, null)
-//            plugin.setIcons(icons)
-//            plugin.setThirdPartyDependencies(dependencies)
+            val manifest = Files.newInputStream(entry).use { Manifest(it) }
+            val dependencies = getThirdPartyDependenciesFromJarFile(jarFileSystem)
+            val plugin = createPlugin(jarFile, descriptorPath, null, validateDescriptor, manifest, null, null)
+            plugin.setThirdPartyDependencies(dependencies)
             return plugin
           } catch (e: Exception) {
             LOG.info("Unable to read file $descriptorPath", e)
             val message = e.localizedMessage
             return createInvalidPlugin(jarFile, descriptorPath, UnableToReadDescriptor(descriptorPath, message))
           }
-//        } else {
-//          createInvalidPlugin(jarFile, descriptorPath, PluginDescriptorIsNotFound(descriptorPath))
-//        }
+        } else {
+          createInvalidPlugin(jarFile, descriptorPath, PluginDescriptorIsNotFound(descriptorPath))
+        }
       }
     } catch (e: Exception) {
       LOG.warn("Unable to read $jarFile in search of $descriptorPath: ${e.message}")
@@ -78,17 +76,6 @@ class IdePluginManager private constructor(
     return parseThirdPartyDependenciesByPath(path)
   }
 
-  private fun getIconsFromJarFile(jarFileSystem: FileSystem): List<PluginIcon> =
-    IconTheme.values().mapNotNull { theme ->
-      val iconEntryName = "$META_INF/${getIconFileName(theme)}"
-      val iconPath = jarFileSystem.getPath(META_INF, getIconFileName(theme))
-      if (iconPath.exists()) {
-        PluginIcon(theme, iconPath.readBytes(), iconEntryName)
-      } else {
-        null
-      }
-    }
-
   private fun loadPluginInfoFromDirectory(
     pluginDirectory: Path,
     descriptorPath: String,
@@ -100,11 +87,11 @@ class IdePluginManager private constructor(
     return if (!descriptorFile.exists()) {
       loadPluginInfoFromLibDirectory(pluginDirectory, descriptorPath, validateDescriptor, resourceResolver, parentPlugin)
     } else try {
-      val document = JDOMUtil.loadDocument(Files.newInputStream(descriptorFile))
+//      val document = JDOMUtil.loadDocument(Files.newInputStream(descriptorFile))
       val icons = loadIconsFromDir(pluginDirectory)
       val dependencies = getThirdPartyDependenciesFromDir(pluginDirectory)
       val plugin = createPlugin(
-        pluginDirectory, descriptorPath, parentPlugin, validateDescriptor, document, descriptorFile, resourceResolver
+        pluginDirectory, descriptorPath, parentPlugin, validateDescriptor, null, descriptorFile, resourceResolver
       )
       plugin.setIcons(icons)
       plugin.setThirdPartyDependencies(dependencies)
@@ -278,7 +265,7 @@ class IdePluginManager private constructor(
   fun createPlugin(
     pluginFile: Path,
     validateDescriptor: Boolean,
-    descriptorPath: String = PLUGIN_XML
+    descriptorPath: String = MANIFEST_MF
   ): PluginCreationResult<IdePlugin> {
     val pluginCreator = getPluginCreatorWithResult(pluginFile, validateDescriptor, descriptorPath)
     return pluginCreator.pluginCreationResult
@@ -313,32 +300,32 @@ class IdePluginManager private constructor(
   }
 
   companion object {
-    private val LOG = LoggerFactory.getLogger(IdePluginManager::class.java)
-    const val PLUGIN_XML = "plugin.xml"
+    private val LOG = LoggerFactory.getLogger(SonarPluginManager::class.java)
     const val META_INF = "META-INF"
+    const val MANIFEST_MF = "MANIFEST.MF"
 
     @JvmStatic
-    fun createManager(): IdePluginManager =
+    fun createManager(): SonarPluginManager =
       createManager(DefaultResourceResolver, Settings.EXTRACT_DIRECTORY.getAsPath())
 
     @JvmStatic
-    fun createManager(resourceResolver: ResourceResolver): IdePluginManager =
+    fun createManager(resourceResolver: ResourceResolver): SonarPluginManager =
       createManager(resourceResolver, Settings.EXTRACT_DIRECTORY.getAsPath())
 
     @JvmStatic
-    fun createManager(extractDirectory: Path): IdePluginManager =
+    fun createManager(extractDirectory: Path): SonarPluginManager =
       createManager(DefaultResourceResolver, extractDirectory)
 
     @JvmStatic
-    fun createManager(resourceResolver: ResourceResolver, extractDirectory: Path): IdePluginManager =
-      IdePluginManager(resourceResolver, extractDirectory)
+    fun createManager(resourceResolver: ResourceResolver, extractDirectory: Path): SonarPluginManager =
+      SonarPluginManager(resourceResolver, extractDirectory)
 
     @Deprecated(
       message = "Use factory method with java.nio.Path",
       replaceWith = ReplaceWith("createManager(extractDirectory.toPath())")
     )
     @JvmStatic
-    fun createManager(extractDirectory: File): IdePluginManager =
+    fun createManager(extractDirectory: File): SonarPluginManager =
       createManager(DefaultResourceResolver, extractDirectory.toPath())
 
     @Deprecated(
@@ -346,7 +333,7 @@ class IdePluginManager private constructor(
       replaceWith = ReplaceWith("createManager(resourceResolver, extractDirectory.toPath())")
     )
     @JvmStatic
-    fun createManager(resourceResolver: ResourceResolver, extractDirectory: File): IdePluginManager =
+    fun createManager(resourceResolver: ResourceResolver, extractDirectory: File): SonarPluginManager =
       createManager(resourceResolver, extractDirectory.toPath())
 
     private fun hasOnlyInvalidDescriptorErrors(creator: PluginCreator): Boolean {

@@ -25,4 +25,4 @@ There are different types of plugins:
 #### Additional modules
 `structure-classes` module contains APIs for resolving plugin class files, which is necessary for the [IntelliJ Plugin Verifier](https://github.com/JetBrains/intellij-plugin-verifier) to verify classes bytecode.
 
-`structure-ide` and `structure-ide-classes` modules contain APIs for parsing configurations of IntelliJ IDE builds along with their bundled plugins, which is necessary for the IntelliJ Plugin Verifier as well.
+`structure-sonar-plugin-api` and `structure-sonar-plugin-api-classes` modules contain APIs for parsing configurations of IntelliJ IDE builds along with their bundled plugins, which is necessary for the IntelliJ Plugin Verifier as well.

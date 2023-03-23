@@ -19,8 +19,8 @@ data class OutputOptions(
 ) {
 
   fun getTargetReportDirectory(verificationTarget: PluginVerificationTarget): Path = when (verificationTarget) {
-    is PluginVerificationTarget.IDE -> verificationReportsDirectory
-      .resolve(verificationTarget.Version.asString().replaceInvalidFileNameCharacters())
+    is PluginVerificationTarget.SonarPluginApi -> verificationReportsDirectory
+      .resolve(verificationTarget.version.asString().replaceInvalidFileNameCharacters())
 
     is PluginVerificationTarget.Plugin -> verificationReportsDirectory
       .resolve("${verificationTarget.plugin.pluginId} ${verificationTarget.plugin.version}".replaceInvalidFileNameCharacters())

@@ -30,7 +30,7 @@ class CheckSonarPluginApiResultPrinter(val pluginRepository: PluginRepository) :
         printOnStdOut(this)
       }
 
-      HtmlResultPrinter(ide, outputOptions).printResults(results)
+      HtmlResultPrinter(sonarPluginApi, outputOptions).printResults(results)
     }
   }
 
@@ -49,9 +49,9 @@ class CheckSonarPluginApiResultPrinter(val pluginRepository: PluginRepository) :
       }
       val problemsNumber = problems.distinctBy { it.shortDescription }.size
       if (problemsNumber > 0) {
-        tcLog.buildStatusFailure("IDE ${ide.Version} has " + "problem".pluralizeWithNumber(problemsNumber) + " affecting " + "plugin".pluralizeWithNumber(brokenPlugins.size))
+        tcLog.buildStatusFailure("IDE ${sonarPluginApi.version} has " + "problem".pluralizeWithNumber(problemsNumber) + " affecting " + "plugin".pluralizeWithNumber(brokenPlugins.size))
       } else {
-        tcLog.buildStatusSuccess("IDE ${ide.Version} doesn't have broken API problems")
+        tcLog.buildStatusSuccess("IDE ${sonarPluginApi.version} doesn't have broken API problems")
       }
 
       return TeamCityHistory(resultsHistory.tests + versionsHistory.tests)

@@ -3,7 +3,7 @@ Read the description of the tool and its command-line options in the main [READM
 
 #### How  it works
 Plugin Verifier accepts as its input a plugin `P` and an IDE build `X` to check compatibility with.
-1) read plugin configuration using `structure-intellij` library: `IdePluginManager.createManager().createPlugin(Path pluginFile)` and get instance of [`IdePlugin`](../intellij-plugin-structure/structure-intellij/src/main/java/com/jetbrains/plugin/structure/intellij/plugin/IdePlugin.kt)
+1) read plugin configuration using `structure-intellij` library: `SonarPluginApiManager.createManager().createPlugin(Path pluginFile)` and get instance of [`IdePlugin`](../intellij-plugin-structure/structure-intellij/src/main/java/com/jetbrains/plugin/structure/intellij/plugin/IdePlugin.kt)
 2) read IDE configuration using `structure-ide` library `IdeManager.createIde(Path idePath)` and get instance of [`Ide`](../intellij-plugin-structure/structure-ide/src/main/java/com/jetbrains/plugin/structure/ide/Ide.java)
 3) read class files of the plugin using `structure-intellij-classes` library and build a [`Resolver`](../intellij-plugin-structure/structure-classes/src/main/java/com/jetbrains/plugin/structure/classes/resolvers/Resolver.kt) that can find plugin classes by name 
 4) read class files of the IDE using `structure-classes` and `structure-ide-classes` libraries and build a [`Resolver`](../intellij-plugin-structure/structure-classes/src/main/java/com/jetbrains/plugin/structure/classes/resolvers/Resolver.kt)

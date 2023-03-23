@@ -4,7 +4,7 @@ import com.jetbrains.plugin.structure.base.plugin.*
 import com.jetbrains.plugin.structure.base.problems.PluginFileSizeIsTooLarge
 import com.jetbrains.plugin.structure.dotnet.ReSharperPluginManager
 import com.jetbrains.plugin.structure.hub.HubPluginManager
-import com.jetbrains.plugin.structure.intellij.plugin.IdePluginManager
+import com.jetbrains.plugin.structure.intellij.plugin.SonarPluginManager
 import com.jetbrains.plugin.structure.mocks.BaseFileSystemAwareTest
 import com.jetbrains.plugin.structure.rules.FileSystemType
 import com.jetbrains.plugin.structure.teamcity.TeamcityPluginManager
@@ -53,8 +53,8 @@ class ZipBombsTest(fileSystemType: FileSystemType) : BaseFileSystemAwareTest(fil
 
     assertTrue(Files.size(nuPkgBomb) > maxSize)
 
-    checkTooLargeProblem(IdePluginManager.createManager(), zipBomb)
-    checkTooLargeProblem(IdePluginManager.createManager(temporaryFolder.newFolder()), zipBomb)
+    checkTooLargeProblem(SonarPluginManager.createManager(), zipBomb)
+    checkTooLargeProblem(SonarPluginManager.createManager(temporaryFolder.newFolder()), zipBomb)
     checkTooLargeProblem(TeamcityPluginManager.createManager(), zipBomb)
     checkTooLargeProblem(TeamcityPluginManager.createManager(temporaryFolder.newFolder()), zipBomb)
     checkTooLargeProblem(HubPluginManager.createManager(), zipBomb)

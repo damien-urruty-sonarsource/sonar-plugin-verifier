@@ -13,7 +13,7 @@ import com.jetbrains.pluginverifier.tasks.TaskParameters
 
 
 class CheckSonarPluginApiParams(
-    val verificationTarget: PluginVerificationTarget.IDE,
+    val verificationTarget: PluginVerificationTarget.SonarPluginApi,
     val verificationDescriptors: List<PluginVerificationDescriptor.IDE>,
     val problemsFilters: List<ProblemsFilter>,
     val missingCompatibleVersionsProblems: List<MissingCompatibleVersionProblem>,
@@ -23,7 +23,7 @@ class CheckSonarPluginApiParams(
 
   override val presentableText
     get() = buildString {
-      appendLine("Scheduled verifications against ${verificationTarget.Version.asString()} (${verificationDescriptors.size}):")
+      appendLine("Scheduled verifications against ${verificationTarget.version.asString()} (${verificationDescriptors.size}):")
       appendLine(verificationDescriptors.joinToString { it.checkedPlugin.presentableName })
     }
 

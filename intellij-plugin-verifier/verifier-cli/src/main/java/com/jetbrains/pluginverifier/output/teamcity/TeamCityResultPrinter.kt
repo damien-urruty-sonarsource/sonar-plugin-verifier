@@ -274,8 +274,8 @@ class TeamCityResultPrinter(
     verificationTargets.associateWith { target ->
       try {
         when (target) {
-          is PluginVerificationTarget.IDE -> {
-            requestLastVersionsOfEachCompatiblePlugins(target.Version)
+          is PluginVerificationTarget.SonarPluginApi -> {
+            requestLastVersionsOfEachCompatiblePlugins(target.version)
           }
           is PluginVerificationTarget.Plugin -> emptyList()
         }

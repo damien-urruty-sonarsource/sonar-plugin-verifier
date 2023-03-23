@@ -2,11 +2,10 @@ package com.jetbrains.pluginverifier.tests
 
 import com.jetbrains.plugin.structure.base.plugin.PluginCreationSuccess
 import com.jetbrains.plugin.structure.ide.SonarPluginApiManager
-import com.jetbrains.plugin.structure.intellij.plugin.IdePluginManager
 import com.jetbrains.plugin.structure.intellij.plugin.PluginDependencyImpl
+import com.jetbrains.plugin.structure.intellij.plugin.SonarPluginManager
 import com.jetbrains.pluginverifier.PluginVerificationResult
 import com.jetbrains.pluginverifier.dependencies.MissingDependency
-import org.hamcrest.CoreMatchers.hasItem
 import org.junit.Assert
 import org.junit.BeforeClass
 import org.junit.Test
@@ -23,9 +22,9 @@ class VerificationTest {
       val idePath = findMockIdePath()
       val pluginFile = findMockPluginJarPath()
 
-      val ide = SonarPluginApiManager.createManager().createSonarPluginApi(idePath)
-      val plugin = (IdePluginManager.createManager().createPlugin(pluginFile) as PluginCreationSuccess).plugin
-      verificationResult = VerificationRunner().runPluginVerification(ide, plugin) as PluginVerificationResult.Verified
+      val sonarPluginApi = SonarPluginApiManager.createManager().createSonarPluginApi(idePath)
+      val plugin = (SonarPluginManager.createManager().createPlugin(pluginFile) as PluginCreationSuccess).plugin
+      verificationResult = VerificationRunner().runPluginVerification(sonarPluginApi, plugin) as PluginVerificationResult.Verified
     }
 
     private fun prepareTestSystemProperties() {

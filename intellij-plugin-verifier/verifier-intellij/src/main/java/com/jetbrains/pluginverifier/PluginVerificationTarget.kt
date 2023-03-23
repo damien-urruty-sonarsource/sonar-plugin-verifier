@@ -13,8 +13,8 @@ import com.jetbrains.pluginverifier.repository.PluginInfo
  */
 sealed class PluginVerificationTarget {
 
-  data class IDE(val Version: Version, val jdkVersion: JdkVersion) : PluginVerificationTarget() {
-    override fun toString() = Version.asString()
+  data class SonarPluginApi(val version: Version, val jdkVersion: JdkVersion) : PluginVerificationTarget() {
+    override fun toString() = version.asString()
   }
 
   data class Plugin(val plugin: PluginInfo, val jdkVersion: JdkVersion) : PluginVerificationTarget() {

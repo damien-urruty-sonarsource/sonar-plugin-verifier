@@ -8,7 +8,7 @@ import com.jetbrains.plugin.structure.base.utils.contentBuilder.buildZipFile
 import com.jetbrains.plugin.structure.ide.SonarPluginApi
 import com.jetbrains.plugin.structure.ide.SonarPluginApiManager
 import com.jetbrains.plugin.structure.intellij.plugin.IdePlugin
-import com.jetbrains.plugin.structure.intellij.plugin.IdePluginManager
+import com.jetbrains.plugin.structure.intellij.plugin.SonarPluginManager
 import com.jetbrains.pluginverifier.PluginVerificationResult
 import com.jetbrains.pluginverifier.dymamic.DynamicPluginStatus
 import org.junit.Assert
@@ -328,7 +328,7 @@ class DynamicPluginStatusTest {
 
   private fun buildPlugin(pluginContentBuilder: ContentBuilder.() -> Unit): IdePlugin {
     val pluginFile = buildZipFile(temporaryFolder.newFile("plugin.jar").toPath(), pluginContentBuilder)
-    val pluginCreationResult = IdePluginManager.createManager().createPlugin(pluginFile)
+    val pluginCreationResult = SonarPluginManager.createManager().createPlugin(pluginFile)
     if (pluginCreationResult is PluginCreationFail) {
       Assert.fail(pluginCreationResult.errorsAndWarnings.joinToString { it.message })
     }

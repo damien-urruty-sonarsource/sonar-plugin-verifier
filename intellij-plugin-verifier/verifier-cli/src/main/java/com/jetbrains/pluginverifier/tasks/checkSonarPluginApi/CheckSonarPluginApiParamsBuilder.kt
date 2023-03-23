@@ -54,7 +54,7 @@ class CheckSonarPluginApiParamsBuilder(
         PluginVerificationDescriptor.IDE(ideDescriptor, classResolverProvider, it)
       }
 
-      val verificationTarget = PluginVerificationTarget.IDE(ideDescriptor.version, ideDescriptor.jdkVersion)
+      val verificationTarget = PluginVerificationTarget.SonarPluginApi(ideDescriptor.version, ideDescriptor.jdkVersion)
       pluginsSet.ignoredPlugins.forEach { (plugin, reason) ->
         reportage.logPluginVerificationIgnored(plugin, verificationTarget, reason)
       }

@@ -2,7 +2,7 @@
  * Copyright 2000-2020 JetBrains s.r.o. and other contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
-package com.jetbrains.plugin.structure.ide
+package com.jetbrains.plugin.structure.sonar.plugin.api
 
 import com.jetbrains.plugin.structure.base.utils.isDirectory
 import com.jetbrains.plugin.structure.intellij.plugin.JarFilesResourceResolver
@@ -13,7 +13,7 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 
-class IdeManagerImpl : SonarPluginApiManager() {
+class SonarPluginApiManagerImpl : SonarPluginApiManager() {
 
   override fun createSonarPluginApi(sonarPluginApiFilePath: Path) = createSonarPluginApi(sonarPluginApiFilePath, null)
 

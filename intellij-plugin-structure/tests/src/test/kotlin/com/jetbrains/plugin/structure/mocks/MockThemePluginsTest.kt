@@ -2,17 +2,17 @@ package com.jetbrains.plugin.structure.mocks
 
 import com.jetbrains.plugin.structure.base.utils.contentBuilder.buildZipFile
 import com.jetbrains.plugin.structure.intellij.plugin.IdePlugin
-import com.jetbrains.plugin.structure.intellij.plugin.IdePluginManager
+import com.jetbrains.plugin.structure.intellij.plugin.SonarPluginManager
 import com.jetbrains.plugin.structure.intellij.plugin.IdeTheme
 import com.jetbrains.plugin.structure.rules.FileSystemType
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.nio.file.Path
 
-class MockThemePluginsTest(fileSystemType: FileSystemType) : BasePluginManagerTest<IdePlugin, IdePluginManager>(fileSystemType)  {
+class MockThemePluginsTest(fileSystemType: FileSystemType) : BasePluginManagerTest<IdePlugin, SonarPluginManager>(fileSystemType)  {
 
-  override fun createManager(extractDirectory: Path): IdePluginManager =
-    IdePluginManager.createManager(extractDirectory)
+  override fun createManager(extractDirectory: Path): SonarPluginManager =
+    SonarPluginManager.createManager(extractDirectory)
 
   @Test
   fun `jar file packed in zip`() {

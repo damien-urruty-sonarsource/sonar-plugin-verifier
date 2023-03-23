@@ -10,9 +10,9 @@ import com.jetbrains.pluginverifier.repository.PluginRepository
 import com.jetbrains.pluginverifier.tasks.TaskResult
 
 class CheckSonarPluginApiResult(
-  val ide: PluginVerificationTarget.IDE,
-  val results: List<PluginVerificationResult>,
-  val missingCompatibleVersionsProblems: List<MissingCompatibleVersionProblem>
+    val sonarPluginApi: PluginVerificationTarget.SonarPluginApi,
+    val results: List<PluginVerificationResult>,
+    val missingCompatibleVersionsProblems: List<MissingCompatibleVersionProblem>
 ) : TaskResult {
   override fun createTaskResultsPrinter(pluginRepository: PluginRepository) = CheckSonarPluginApiResultPrinter(pluginRepository)
 }

@@ -64,5 +64,5 @@ fun PluginVerificationDescriptor.toTarget(): PluginVerificationTarget = when (th
 fun PluginVerificationDescriptor.Plugin.toTarget(): PluginVerificationTarget.Plugin =
   PluginVerificationTarget.Plugin(apiPlugin, jdkVersion)
 
-fun PluginVerificationDescriptor.IDE.toTarget(): PluginVerificationTarget.IDE =
-  PluginVerificationTarget.IDE(version, jdkVersion)
+fun PluginVerificationDescriptor.IDE.toTarget(): PluginVerificationTarget.SonarPluginApi =
+  PluginVerificationTarget.SonarPluginApi(version, jdkVersion)

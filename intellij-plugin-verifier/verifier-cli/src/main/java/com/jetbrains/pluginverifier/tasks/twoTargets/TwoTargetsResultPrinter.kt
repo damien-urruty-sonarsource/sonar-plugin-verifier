@@ -83,7 +83,7 @@ class TwoTargetsResultPrinter : TaskResultPrinter {
     val allProblems = allProblem2Plugins.keys
 
     val newPluginIdToVerifications = hashMapOf<String, MutableList<PluginVerificationResult>>()
-    if (newTarget is PluginVerificationTarget.IDE) {
+    if (newTarget is PluginVerificationTarget.SonarPluginApi) {
       for (result in twoTargetsVerificationResults.newResults) {
         newPluginIdToVerifications.getOrPut(result.plugin.pluginId) { arrayListOf() } += result
       }
@@ -137,10 +137,10 @@ class TwoTargetsResultPrinter : TaskResultPrinter {
                 }
                 appendLine(plugin.getFullPluginCoordinates())
 
-                val latestPluginVerification = if (newTarget is PluginVerificationTarget.IDE) {
+                val latestPluginVerification = if (newTarget is PluginVerificationTarget.SonarPluginApi) {
                   @Suppress("RemoveExplicitTypeArguments")
                   (newPluginIdToVerifications[plugin.pluginId] ?: emptyList<PluginVerificationResult>()).find {
-                    it.plugin != plugin && it.plugin.isCompatibleWith(newTarget.Version)
+                    it.plugin != plugin && it.plugin.isCompatibleWith(newTarget.version)
                   }
                 } else {
                   null
@@ -295,18 +295,18 @@ class TwoTargetsResultPrinter : TaskResultPrinter {
     latestPluginVerification: PluginVerificationResult?,
     problems: Collection<CompatibilityProblem>
   ): String = buildString {
-    if (baseTarget is PluginVerificationTarget.IDE
-      && newTarget is PluginVerificationTarget.IDE
-      && !plugin.isCompatibleWith(newTarget.Version)
+    if (baseTarget is PluginVerificationTarget.SonarPluginApi
+      && newTarget is PluginVerificationTarget.SonarPluginApi
+      && !plugin.isCompatibleWith(newTarget.version)
     ) {
       appendLine(
         "Note that compatibility range ${plugin.presentableSinceUntilRange} " +
-          "of plugin ${plugin.presentableName} does not include ${newTarget.Version}."
+          "of plugin ${plugin.presentableName} does not include ${newTarget.version}."
       )
       if (latestPluginVerification != null) {
         appendLine(
           "We have also verified the newest plugin version ${latestPluginVerification.plugin.presentableName} " +
-            "whose compatibility range ${latestPluginVerification.plugin.presentableSinceUntilRange} includes ${newTarget.Version}. "
+            "whose compatibility range ${latestPluginVerification.plugin.presentableSinceUntilRange} includes ${newTarget.version}. "
         )
         val latestVersionSameProblemsCount = problems.count { latestPluginVerification.isKnownProblem(it) }
         if (latestVersionSameProblemsCount > 0) {
@@ -318,7 +318,7 @@ class TwoTargetsResultPrinter : TaskResultPrinter {
           appendLine("The newest version ${latestPluginVerification.plugin.version} has none of the problems of the old version and thus it may be considered unaffected by this breaking change.")
         }
       } else {
-        appendLine("There are no newer versions of the plugin for ${newTarget.Version}. ")
+        appendLine("There are no newer versions of the plugin for ${newTarget.version}. ")
       }
     }
   }

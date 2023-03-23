@@ -71,7 +71,7 @@ class TeamCityResultPrinterTest {
         TeamCityResultPrinter.GroupBy.BY_PLUGIN,
         pluginRepository
       )
-      val verificationTarget = PluginVerificationTarget.IDE(Version.createIdeVersion("IU-145"), JdkVersion("1.8", null))
+      val verificationTarget = PluginVerificationTarget.SonarPluginApi(Version.createIdeVersion("IU-145"), JdkVersion("1.8", null))
       tcPrinter.printResults(
         pluginInfos.map {
           PluginVerificationResult.NotFound(

@@ -27,10 +27,10 @@ import com.jetbrains.pluginverifier.warnings.PluginStructureError
 import com.jetbrains.pluginverifier.warnings.PluginStructureWarning
 
 fun PluginVerificationResult.prepareResponse(updateId: Int, Version: String): FullVerificationResultDto {
-  val ideTarget = verificationTarget as PluginVerificationTarget.IDE
+  val sonarPluginApiTarget = verificationTarget as PluginVerificationTarget.SonarPluginApi
   // TODO: should add productName
   val ide = AvailableIdeDto(Version, null, null)
-  val javaVersion = ideTarget.jdkVersion.javaVersion
+  val javaVersion = sonarPluginApiTarget.jdkVersion.javaVersion
   return when (this) {
     is PluginVerificationResult.FailedToDownload -> {
       FullVerificationResultDto(

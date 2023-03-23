@@ -12,7 +12,7 @@ import com.jetbrains.plugin.structure.intellij.classes.plugin.IdePluginClassesFi
 import com.jetbrains.plugin.structure.intellij.classes.plugin.IdePluginClassesLocations
 import com.jetbrains.plugin.structure.intellij.plugin.IdePlugin
 import com.jetbrains.plugin.structure.intellij.plugin.IdePluginImpl
-import com.jetbrains.plugin.structure.intellij.plugin.IdePluginManager
+import com.jetbrains.plugin.structure.intellij.plugin.SonarPluginManager
 import com.jetbrains.plugin.structure.intellij.plugin.PluginDependencyImpl
 import com.jetbrains.plugin.structure.intellij.plugin.PluginXmlUtil.getAllClassesReferencedFromXml
 import com.jetbrains.plugin.structure.intellij.problems.*
@@ -25,7 +25,7 @@ import java.nio.file.Paths
 import java.time.LocalDate
 import java.util.*
 
-class MockPluginsTest(fileSystemType: FileSystemType) : BasePluginManagerTest<IdePlugin, IdePluginManager>(fileSystemType) {
+class MockPluginsTest(fileSystemType: FileSystemType) : BasePluginManagerTest<IdePlugin, SonarPluginManager>(fileSystemType) {
   private val mockPluginRoot = Paths.get(this::class.java.getResource("/mock-plugin").toURI())
   private val metaInfDir = mockPluginRoot.resolve("META-INF")
   private val v2ModuleFile = mockPluginRoot.resolve("intellij.v2.module.xml")
@@ -63,8 +63,8 @@ class MockPluginsTest(fileSystemType: FileSystemType) : BasePluginManagerTest<Id
     return plugin
   }
 
-  override fun createManager(extractDirectory: Path): IdePluginManager =
-    IdePluginManager.createManager(extractDirectory)
+  override fun createManager(extractDirectory: Path): SonarPluginManager =
+    SonarPluginManager.createManager(extractDirectory)
 
   @Test
   fun `single jar file`() {

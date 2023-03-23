@@ -7,7 +7,7 @@ import com.jetbrains.plugin.structure.base.utils.contentBuilder.buildDirectory
 import com.jetbrains.plugin.structure.base.utils.contentBuilder.buildZipFile
 import com.jetbrains.plugin.structure.base.utils.simpleName
 import com.jetbrains.plugin.structure.intellij.plugin.IdePlugin
-import com.jetbrains.plugin.structure.intellij.plugin.IdePluginManager
+import com.jetbrains.plugin.structure.intellij.plugin.SonarPluginManager
 import com.jetbrains.plugin.structure.intellij.problems.*
 import com.jetbrains.plugin.structure.intellij.problems.TooLongPropertyValue
 import com.jetbrains.plugin.structure.intellij.version.Version
@@ -18,7 +18,7 @@ import org.junit.Test
 import java.nio.file.Path
 import java.nio.file.Paths
 
-class InvalidPluginsTest(fileSystemType: FileSystemType) : BasePluginManagerTest<IdePlugin, IdePluginManager>(fileSystemType) {
+class InvalidPluginsTest(fileSystemType: FileSystemType) : BasePluginManagerTest<IdePlugin, SonarPluginManager>(fileSystemType) {
   private val DEFAULT_TEMPLATE_NAMES = setOf("Plugin display name here", "My Framework Support", "Template", "Demo")
   private val PLUGIN_NAME_RESTRICTED_WORDS = setOf(
     "plugin", "JetBrains", "IDEA", "PyCharm", "CLion", "AppCode", "DataGrip", "Fleet", "GoLand", "PhpStorm", "WebStorm",
@@ -28,8 +28,8 @@ class InvalidPluginsTest(fileSystemType: FileSystemType) : BasePluginManagerTest
     "Enter short description for your plugin here", "most HTML tags may be used", "example.com/my-framework"
   )
 
-  override fun createManager(extractDirectory: Path): IdePluginManager =
-    IdePluginManager.createManager(extractDirectory)
+  override fun createManager(extractDirectory: Path): SonarPluginManager =
+    SonarPluginManager.createManager(extractDirectory)
 
   @Test
   fun `incorrect plugin file type`() {

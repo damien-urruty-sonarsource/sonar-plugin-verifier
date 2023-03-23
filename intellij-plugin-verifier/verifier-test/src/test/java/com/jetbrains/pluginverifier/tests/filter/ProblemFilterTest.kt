@@ -4,7 +4,7 @@ import com.jetbrains.plugin.structure.base.plugin.PluginCreationSuccess
 import com.jetbrains.plugin.structure.ide.SonarPluginApi
 import com.jetbrains.plugin.structure.ide.SonarPluginApiManager
 import com.jetbrains.plugin.structure.intellij.plugin.IdePlugin
-import com.jetbrains.plugin.structure.intellij.plugin.IdePluginManager
+import com.jetbrains.plugin.structure.intellij.plugin.SonarPluginManager
 import com.jetbrains.pluginverifier.PluginVerificationResult
 import com.jetbrains.pluginverifier.filtering.KeepOnlyCondition
 import com.jetbrains.pluginverifier.filtering.KeepOnlyProblemsFilter
@@ -18,7 +18,7 @@ import org.junit.Test
 class ProblemFilterTest {
     companion object {
         lateinit var verificationRunner: VerificationRunner
-        lateinit var ide: SonarPluginApi
+        lateinit var sonarPluginApi: SonarPluginApi
         lateinit var plugin: IdePlugin
 
         @BeforeClass
@@ -28,8 +28,8 @@ class ProblemFilterTest {
             val idePath = findMockIdePath()
             val pluginFile = findMockPluginJarPath()
 
-            ide = SonarPluginApiManager.createManager().createSonarPluginApi(idePath)
-            plugin = (IdePluginManager.createManager().createPlugin(pluginFile) as PluginCreationSuccess).plugin
+            sonarPluginApi = SonarPluginApiManager.createManager().createSonarPluginApi(idePath)
+            plugin = (SonarPluginManager.createManager().createPlugin(pluginFile) as PluginCreationSuccess).plugin
             verificationRunner = VerificationRunner()
         }
 
@@ -43,7 +43,7 @@ class ProblemFilterTest {
         val filterRegex = ".*kotlin.*".toRegex()
         val keepOnlyProblemsFilter = listOf(KeepOnlyProblemsFilter(listOf(KeepOnlyCondition(filterRegex))))
         val verificationResult = verificationRunner.runPluginVerification(
-            ide,
+            sonarPluginApi,
             plugin,
             keepOnlyProblemsFilter
         ) as PluginVerificationResult.Verified

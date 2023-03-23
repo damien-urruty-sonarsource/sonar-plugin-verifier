@@ -7,7 +7,7 @@ import com.jetbrains.plugin.structure.base.utils.contentBuilder.buildZipFile
 import com.jetbrains.plugin.structure.ide.SonarPluginApi
 import com.jetbrains.plugin.structure.ide.SonarPluginApiManager
 import com.jetbrains.plugin.structure.intellij.plugin.IdePlugin
-import com.jetbrains.plugin.structure.intellij.plugin.IdePluginManager
+import com.jetbrains.plugin.structure.intellij.plugin.SonarPluginManager
 import com.jetbrains.pluginverifier.PluginVerificationResult
 import com.jetbrains.pluginverifier.results.problems.CompatibilityProblem
 import com.jetbrains.pluginverifier.warnings.CompatibilityWarning
@@ -192,7 +192,7 @@ class NoExplicitDependencyOnJavaPluginTest {
       }
     }
 
-    return (IdePluginManager.createManager().createPlugin(pluginFile) as PluginCreationSuccess).plugin
+    return (SonarPluginManager.createManager().createPlugin(pluginFile) as PluginCreationSuccess).plugin
   }
 
   private fun buildIdeWithBundledPlugins(

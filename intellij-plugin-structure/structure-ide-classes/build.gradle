@@ -1,4 +1,4 @@
 dependencies {
-  api project(':structure-ide')
+  api project(':structure-sonar-plugin-api')
   api project(':structure-classes')
 }

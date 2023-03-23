@@ -24,6 +24,7 @@ import java.nio.file.Path
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+import java.util.jar.Manifest
 
 internal class PluginCreator private constructor(
   val pluginFileName: String,
@@ -65,11 +66,11 @@ internal class PluginCreator private constructor(
       descriptorPath: String,
       parentPlugin: PluginCreator?,
       validateDescriptor: Boolean,
-      document: Document?,
+      manifest: Manifest?,
       documentPath: Path?,
       pathResolver: ResourceResolver?
     ) = createPlugin(
-      pluginFile.simpleName, descriptorPath, parentPlugin, validateDescriptor, document, documentPath, pathResolver
+      pluginFile.simpleName, descriptorPath, parentPlugin, validateDescriptor, manifest, documentPath, pathResolver
     )
 
     @JvmStatic
@@ -78,13 +79,14 @@ internal class PluginCreator private constructor(
       descriptorPath: String,
       parentPlugin: PluginCreator?,
       validateDescriptor: Boolean,
-      document: Document?,
+      manifest: Manifest?,
       documentPath: Path?,
       pathResolver: ResourceResolver?
     ): PluginCreator {
+      manifest ?: throw IllegalArgumentException("${SonarPluginManager.MANIFEST_MF} file not found in plugin")
       val pluginCreator = PluginCreator(pluginFileName, descriptorPath, parentPlugin)
-      pluginCreator.plugin.pluginId = "id"
-      pluginCreator.plugin.pluginVersion = "99.9"
+      pluginCreator.plugin.pluginId = manifest.mainAttributes.getValue("Plugin-Key")
+      pluginCreator.plugin.pluginVersion = manifest.mainAttributes.getValue("Plugin-Version")
 //      pluginCreator.resolveDocumentAndValidateBean(
 //        document, documentPath, descriptorPath, pathResolver, validateDescriptor
 //      )

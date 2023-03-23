@@ -20,8 +20,8 @@ class CheckTrunkApiParams(
     val problemsFilters: List<ProblemsFilter>,
     val releaseVerificationDescriptors: List<PluginVerificationDescriptor.IDE>,
     val trunkVerificationDescriptors: List<PluginVerificationDescriptor.IDE>,
-    val releaseVerificationTarget: PluginVerificationTarget.IDE,
-    val trunkVerificationTarget: PluginVerificationTarget.IDE,
+    val releaseVerificationTarget: PluginVerificationTarget.SonarPluginApi,
+    val trunkVerificationTarget: PluginVerificationTarget.SonarPluginApi,
     val excludeExternalBuildClassesSelector: Boolean
 ) : TaskParameters {
   override val presentableText: String

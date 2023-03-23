@@ -2,17 +2,17 @@
  * Copyright 2000-2020 JetBrains s.r.o. and other contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
-package com.jetbrains.plugin.structure.ide.classes
+package com.jetbrains.plugin.structure.sonar.plugin.api.classes
 
 import com.jetbrains.plugin.structure.base.utils.*
 import com.jetbrains.plugin.structure.classes.resolvers.*
-import com.jetbrains.plugin.structure.ide.SonarPluginApi
-import com.jetbrains.plugin.structure.ide.IdeManagerImpl
-import com.jetbrains.plugin.structure.ide.IdeManagerImpl.Companion.isCompiledCommunity
-import com.jetbrains.plugin.structure.ide.IdeManagerImpl.Companion.isCompiledUltimate
-import com.jetbrains.plugin.structure.ide.IdeManagerImpl.Companion.isDistributionIde
-import com.jetbrains.plugin.structure.ide.InvalidSonarPluginApiException
-import com.jetbrains.plugin.structure.ide.getRepositoryLibrariesJars
+import com.jetbrains.plugin.structure.sonar.plugin.api.SonarPluginApi
+import com.jetbrains.plugin.structure.sonar.plugin.api.SonarPluginApiManagerImpl
+import com.jetbrains.plugin.structure.sonar.plugin.api.SonarPluginApiManagerImpl.Companion.isCompiledCommunity
+import com.jetbrains.plugin.structure.sonar.plugin.api.SonarPluginApiManagerImpl.Companion.isCompiledUltimate
+import com.jetbrains.plugin.structure.sonar.plugin.api.SonarPluginApiManagerImpl.Companion.isDistributionIde
+import com.jetbrains.plugin.structure.sonar.plugin.api.InvalidSonarPluginApiException
+import com.jetbrains.plugin.structure.sonar.plugin.api.getRepositoryLibrariesJars
 import java.nio.file.Path
 
 object IdeResolverCreator {
@@ -59,7 +59,7 @@ object IdeResolverCreator {
       resolvers += getJarsResolver(idePath.resolve("lib"), readMode, IdeFileOrigin.SourceLibDirectory(sonarPluginApi))
       resolvers += getRepositoryLibrariesResolver(idePath, readMode, sonarPluginApi)
 
-      val compiledClassesRoot = IdeManagerImpl.getCompiledClassesRoot(idePath)!!
+      val compiledClassesRoot = SonarPluginApiManagerImpl.getCompiledClassesRoot(idePath)!!
       compiledClassesRoot.listFiles().forEach { moduleRoot ->
         val fileOrigin = IdeFileOrigin.CompiledModule(sonarPluginApi, moduleRoot.simpleName)
         resolvers += DirectoryResolver(moduleRoot, fileOrigin, readMode)

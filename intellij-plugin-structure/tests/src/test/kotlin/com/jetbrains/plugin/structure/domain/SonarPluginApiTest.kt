@@ -1,9 +1,8 @@
 package com.jetbrains.plugin.structure.domain
 
 import com.jetbrains.plugin.structure.base.utils.contentBuilder.buildDirectory
-import com.jetbrains.plugin.structure.ide.SonarPluginApiManager
-import com.jetbrains.plugin.structure.ide.InvalidSonarPluginApiException
-import com.jetbrains.plugin.structure.intellij.plugin.IdeTheme
+import com.jetbrains.plugin.structure.sonar.plugin.api.SonarPluginApiManager
+import com.jetbrains.plugin.structure.sonar.plugin.api.InvalidSonarPluginApiException
 import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.plugin.structure.mocks.PluginXmlBuilder
 import com.jetbrains.plugin.structure.mocks.modify

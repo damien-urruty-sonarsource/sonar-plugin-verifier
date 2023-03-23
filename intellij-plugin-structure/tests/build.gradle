@@ -1,7 +1,7 @@
 dependencies {
   testImplementation project(":")
-  testImplementation project(":structure-ide")
-  testImplementation project(":structure-ide-classes")
+  testImplementation project(":structure-sonar-plugin-api")
+  testImplementation project(":structure-sonar-plugin-api-classes")
   testImplementation project(":structure-intellij")
   testImplementation project(":structure-intellij-classes")
   testImplementation project(":structure-teamcity")

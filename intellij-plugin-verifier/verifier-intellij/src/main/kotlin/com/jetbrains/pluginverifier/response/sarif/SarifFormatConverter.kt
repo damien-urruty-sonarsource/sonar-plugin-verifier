@@ -68,15 +68,15 @@ private fun PluginVerificationResult.toAutomationDetails(): AutomationDetails {
 private fun PluginVerificationResult.toPluginVerifierPropertiesBag(): PluginVerifierPropertiesBag {
   val dependenciesGraph = if (this is PluginVerificationResult.Verified) dependenciesGraph.convert() else null
   val dynamicPluginStatus = if (this is PluginVerificationResult.Verified) dynamicPluginStatus?.convert() else null
-  val Version = verificationTarget as PluginVerificationTarget.IDE
+  val sonarPluginApi = verificationTarget as PluginVerificationTarget.SonarPluginApi
   val type = when (this) {
     is PluginVerificationResult.Verified -> this.convertResultType()
     is PluginVerificationResult.NotFound, is PluginVerificationResult.FailedToDownload -> VerificationResultTypeDto.NON_DOWNLOADABLE
     is PluginVerificationResult.InvalidPlugin -> VerificationResultTypeDto.INVALID_PLUGIN
   }
   return PluginVerifierPropertiesBag(
-    Version = Version.Version.asString(),
-    javaVersion = Version.jdkVersion.javaVersion,
+    Version = sonarPluginApi.version.asString(),
+    javaVersion = sonarPluginApi.jdkVersion.javaVersion,
     resultType = type,
     verdict = this.verificationVerdict,
     dependenciesGraph = dependenciesGraph,

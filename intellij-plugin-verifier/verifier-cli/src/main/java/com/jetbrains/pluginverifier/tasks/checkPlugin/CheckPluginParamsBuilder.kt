@@ -28,17 +28,16 @@ class CheckPluginParamsBuilder(
 
   override fun build(opts: CmdOpts, freeArgs: List<String>): CheckPluginParams {
     require(freeArgs.size > 1) {
-      "You must specify plugin to check and IDE(s), example:\n" +
-        "java -jar verifier.jar check-plugin ~/work/myPlugin/myPlugin.zip ~/EAPs/idea-IU-117.963\n" +
-        "java -jar verifier.jar check-plugin #14986 ~/EAPs/idea-IU-117.963"
+      "You must provide 'path:[plugin path]' followed by [sonar-plugin-api version(s)], example:\n" +
+        "java -jar verifier.jar check-plugin path:~/target/sonar-XXX-plugin-X.Y-SNAPSHOT.jar 9.14.0.375"
     }
 
-    val ideDescriptors = freeArgs.drop(1).map {
-      reportage.logVerificationStage("Reading IDE $it")
+    val sonarPluginApiDescriptors = freeArgs.drop(1).map {
+      reportage.logVerificationStage("Reading sonar-plugin-api $it")
       OptionsParser.createSonarPluginApiDescriptor(it, opts)
     }
 
-    val ideVersions = ideDescriptors.map { it.version }
+    val pluginApiVersions = sonarPluginApiDescriptors.map { it.version }
     val pluginsSet = PluginsSet()
     val pluginsParsing = PluginsParsing(pluginRepository, reportage, pluginsSet)
 
@@ -47,32 +46,32 @@ class CheckPluginParamsBuilder(
       pluginToTestArg.startsWith("@") -> {
         pluginsParsing.addPluginsListedInFile(
           Paths.get(pluginToTestArg.substringAfter("@")),
-          ideVersions
+          pluginApiVersions
         )
       }
       else -> {
-        pluginsParsing.addPluginBySpec(pluginToTestArg, Paths.get(""), ideVersions)
+        pluginsParsing.addPluginBySpec(pluginToTestArg, Paths.get(""), pluginApiVersions)
       }
     }
 
     val externalClassesPackageFilter = OptionsParser.getExternalClassesPackageFilter(opts)
     val problemsFilters = OptionsParser.getProblemsFilters(opts)
 
-    val verificationDescriptors = ideDescriptors.flatMap { ideDescriptor ->
-      val dependencyFinder = createDependencyFinder(pluginsSet.localRepository, ideDescriptor, pluginDetailsCache)
+    val verificationDescriptors = sonarPluginApiDescriptors.flatMap { sonarPluginApiDescriptor ->
+      val dependencyFinder = createDependencyFinder(pluginsSet.localRepository, sonarPluginApiDescriptor, pluginDetailsCache)
       val classResolverProvider = DefaultClassResolverProvider(
         dependencyFinder,
-        ideDescriptor,
+        sonarPluginApiDescriptor,
         externalClassesPackageFilter
       )
 
       pluginsSet.pluginsToCheck.map {
-        PluginVerificationDescriptor.IDE(ideDescriptor, classResolverProvider, it)
+        PluginVerificationDescriptor.IDE(sonarPluginApiDescriptor, classResolverProvider, it)
       }
     }
 
-    val verificationTargets = ideDescriptors.map {
-      PluginVerificationTarget.IDE(it.version, it.jdkVersion)
+    val verificationTargets = sonarPluginApiDescriptors.map {
+      PluginVerificationTarget.SonarPluginApi(it.version, it.jdkVersion)
     }
 
     pluginsSet.ignoredPlugins.forEach { (plugin, reason) ->
@@ -82,7 +81,7 @@ class CheckPluginParamsBuilder(
     }
 
     return CheckPluginParams(
-      ideDescriptors,
+      sonarPluginApiDescriptors,
       problemsFilters,
       verificationDescriptors,
       pluginsSet.invalidPluginFiles,

@@ -13,7 +13,7 @@ import com.jetbrains.plugin.structure.base.utils.rethrowIfInterrupted
 import com.jetbrains.plugin.structure.intellij.classes.locator.CompileServerExtensionKey
 import com.jetbrains.plugin.structure.intellij.classes.plugin.IdePluginClassesFinder
 import com.jetbrains.plugin.structure.intellij.plugin.IdePlugin
-import com.jetbrains.plugin.structure.intellij.plugin.IdePluginManager
+import com.jetbrains.plugin.structure.intellij.plugin.SonarPluginManager
 import com.jetbrains.plugin.structure.intellij.problems.UnableToReadPluginFile
 import com.jetbrains.pluginverifier.repository.PluginInfo
 import com.jetbrains.pluginverifier.repository.files.FileLock
@@ -24,11 +24,11 @@ import java.nio.file.Path
  * uses the [extractDirectory] for extracting `.zip`-ped plugins.
  */
 class PluginDetailsProviderImpl(private val extractDirectory: Path) : PluginDetailsProvider {
-  private val idePluginManager = IdePluginManager.createManager(extractDirectory)
+  private val sonarPluginManager = SonarPluginManager.createManager(extractDirectory)
 
   override fun providePluginDetails(pluginInfo: PluginInfo, pluginFileLock: FileLock) =
     pluginFileLock.closeOnException {
-      with(idePluginManager.createPlugin(pluginFileLock.file)) {
+      with(sonarPluginManager.createPlugin(pluginFileLock.file)) {
         when (this) {
           is PluginCreationSuccess -> {
             readPluginClasses(

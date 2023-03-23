@@ -8,7 +8,7 @@ import com.jetbrains.plugin.structure.base.plugin.PluginCreationSuccess
 import com.jetbrains.plugin.structure.base.utils.closeOnException
 import com.jetbrains.plugin.structure.base.utils.exists
 import com.jetbrains.plugin.structure.base.utils.readLines
-import com.jetbrains.plugin.structure.intellij.plugin.IdePluginManager
+import com.jetbrains.plugin.structure.intellij.plugin.SonarPluginManager
 import com.jetbrains.pluginverifier.PluginVerificationDescriptor
 import com.jetbrains.pluginverifier.PluginVerificationTarget
 import com.jetbrains.pluginverifier.jdk.JdkDescriptorCreator
@@ -119,7 +119,7 @@ Example: java -jar verifier.jar check-plugin-api Kotlin-old.zip Kotlin-new.zip k
 
 
   private fun providePluginDetails(pluginFile: Path): PluginDetails {
-    val pluginCreationResult = IdePluginManager.createManager().createPlugin(pluginFile)
+    val pluginCreationResult = SonarPluginManager.createManager().createPlugin(pluginFile)
     check(pluginCreationResult is PluginCreationSuccess) { pluginCreationResult.toString() }
     val localPluginInfo = LocalPluginInfo(pluginCreationResult.plugin)
     val cacheEntry = pluginDetailsCache.getPluginDetailsCacheEntry(localPluginInfo)

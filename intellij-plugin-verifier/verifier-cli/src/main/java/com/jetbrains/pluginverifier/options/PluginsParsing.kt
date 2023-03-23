@@ -8,7 +8,7 @@ import com.jetbrains.plugin.structure.base.plugin.PluginCreationFail
 import com.jetbrains.plugin.structure.base.plugin.PluginCreationSuccess
 import com.jetbrains.plugin.structure.base.utils.exists
 import com.jetbrains.plugin.structure.base.utils.readLines
-import com.jetbrains.plugin.structure.intellij.plugin.IdePluginManager
+import com.jetbrains.plugin.structure.intellij.plugin.SonarPluginManager
 import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.pluginverifier.dependencies.resolution.LastVersionSelector
 import com.jetbrains.pluginverifier.dependencies.resolution.PluginVersionSelector
@@ -190,7 +190,7 @@ class PluginsParsing(
     }
 
     reportage.logVerificationStage("Reading plugin to check from $pluginFile")
-    val pluginCreationResult = IdePluginManager.createManager().createPlugin(pluginFile, validateDescriptor)
+    val pluginCreationResult = SonarPluginManager.createManager().createPlugin(pluginFile, validateDescriptor)
     with(pluginCreationResult) {
       when (this) {
         is PluginCreationSuccess -> pluginsSet.scheduleLocalPlugin(plugin)

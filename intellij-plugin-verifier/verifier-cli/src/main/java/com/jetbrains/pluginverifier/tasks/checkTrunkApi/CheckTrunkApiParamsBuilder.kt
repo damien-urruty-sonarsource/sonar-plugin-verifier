@@ -162,12 +162,12 @@ class CheckTrunkApiParamsBuilder(
       PluginVerificationDescriptor.IDE(trunkIdeDescriptor, trunkResolverProvider, it)
     }
 
-    val releaseVerificationTarget = PluginVerificationTarget.IDE(releaseIdeDescriptor.version, releaseIdeDescriptor.jdkVersion)
+    val releaseVerificationTarget = PluginVerificationTarget.SonarPluginApi(releaseIdeDescriptor.version, releaseIdeDescriptor.jdkVersion)
     for ((pluginInfo, ignoreReason) in releasePluginsSet.ignoredPlugins) {
       reportage.logPluginVerificationIgnored(pluginInfo, releaseVerificationTarget, ignoreReason)
     }
 
-    val trunkVerificationTarget = PluginVerificationTarget.IDE(trunkIdeDescriptor.version, trunkIdeDescriptor.jdkVersion)
+    val trunkVerificationTarget = PluginVerificationTarget.SonarPluginApi(trunkIdeDescriptor.version, trunkIdeDescriptor.jdkVersion)
     for ((pluginInfo, ignoreReason) in trunkPluginsSet.ignoredPlugins) {
       reportage.logPluginVerificationIgnored(pluginInfo, trunkVerificationTarget, ignoreReason)
     }
