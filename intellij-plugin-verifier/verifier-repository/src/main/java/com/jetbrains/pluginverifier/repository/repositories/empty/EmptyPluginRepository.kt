@@ -9,7 +9,7 @@ import com.jetbrains.pluginverifier.repository.PluginInfo
 import com.jetbrains.pluginverifier.repository.PluginRepository
 
 object EmptyPluginRepository : PluginRepository {
-  override fun getLastCompatiblePlugins(Version: Version): List<PluginInfo> = emptyList()
+  override fun getLastCompatiblePlugins(version: Version): List<PluginInfo> = emptyList()
 
   override fun getLastCompatibleVersionOfPlugin(Version: Version, pluginId: String): PluginInfo? = null
 

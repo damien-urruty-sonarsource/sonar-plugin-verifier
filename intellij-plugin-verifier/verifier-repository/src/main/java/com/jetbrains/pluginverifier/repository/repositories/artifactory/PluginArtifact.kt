@@ -12,7 +12,7 @@ import java.net.URL
 import java.util.*
 
 /**
- * Identifier of a plugin hosted on the public Plugin Repository [MarketplaceRepository].
+ * Identifier of a plugin hosted on the public Artifactory Repository [ArtifactoryRepository].
  */
 class PluginArtifact(
   pluginId: String,
@@ -23,10 +23,8 @@ class PluginArtifact(
   vendor: String,
   val sourceCodeUrl: URL?,
   override val downloadUrl: URL,
-  val updateId: Int,
   override val browserUrl: URL,
   val tags: List<String>,
-  val pluginIntId: Int
 ) : Downloadable, Browseable, PluginInfo(
   pluginId,
   pluginName,
@@ -37,12 +35,11 @@ class PluginArtifact(
 ) {
 
   override val presentableName
-    get() = "$pluginId:$version (#$updateId)"
+    get() = "$pluginId:$version"
 
   override fun equals(other: Any?) = other is PluginArtifact
     && pluginId == other.pluginId
     && version == other.version
-    && updateId == other.updateId
 
-  override fun hashCode() = Objects.hash(pluginId, version, updateId)
+  override fun hashCode() = Objects.hash(pluginId, version)
 }

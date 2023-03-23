@@ -89,7 +89,7 @@ class DirectoryBasedPluginVerificationReportage(private val targetDirectoryProvi
     val pluginId = pluginInfo.pluginId.replaceInvalidFileNameCharacters()
     return when (pluginInfo) {
       is PluginArtifact -> {
-        val version = "${pluginInfo.version} (#${pluginInfo.updateId})".replaceInvalidFileNameCharacters()
+        val version = pluginInfo.version.replaceInvalidFileNameCharacters()
         Paths.get(pluginId, version)
       }
       else -> Paths.get(pluginId, pluginInfo.version.replaceInvalidFileNameCharacters())

@@ -40,28 +40,4 @@ class PublicPluginRepositoryTest : BaseRepositoryTest<ArtifactoryRepository>() {
     assertEquals(emptyList<PluginArtifact>(), updates)
   }
 
-  @Test
-  fun `find non existent plugin by update id`() {
-    val updateInfo = repository.getPluginInfoByUpdateId(-1000)
-    assertNull(updateInfo)
-  }
-
-  @Test
-  fun `request update info`() {
-    //Plugin ".env files support 2022.3"
-    val updateInfo = repository.getPluginInfoByUpdateId(228993)!!
-    assertEquals(".env files support", updateInfo.pluginName)
-    assertEquals("2022.3", updateInfo.version)
-
-    val updateIdToInfo = repository.getPluginInfosForManyPluginIdsAndUpdateIds(listOf(9525 to 228993))
-    assertEquals(mapOf(228993 to updateInfo), updateIdToInfo)
-  }
-
-  @Test
-  fun `download existing plugin`() {
-    //Plugin ".env files support 2022.3"
-    val updateInfo = repository.getPluginInfoByUpdateId(228993)!!
-    checkDownloadPlugin(updateInfo)
-  }
-
 }

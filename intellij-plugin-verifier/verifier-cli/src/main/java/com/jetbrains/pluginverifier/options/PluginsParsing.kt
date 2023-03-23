@@ -10,12 +10,14 @@ import com.jetbrains.plugin.structure.base.utils.exists
 import com.jetbrains.plugin.structure.base.utils.readLines
 import com.jetbrains.plugin.structure.intellij.plugin.SonarPluginManager
 import com.jetbrains.plugin.structure.intellij.version.Version
+import com.jetbrains.pluginverifier.dependencies.resolution.ExactVersionSelector
 import com.jetbrains.pluginverifier.dependencies.resolution.LastVersionSelector
 import com.jetbrains.pluginverifier.dependencies.resolution.PluginVersionSelector
 import com.jetbrains.pluginverifier.misc.retry
 import com.jetbrains.pluginverifier.reporting.PluginVerificationReportage
 import com.jetbrains.pluginverifier.repository.PluginRepository
 import com.jetbrains.pluginverifier.tasks.InvalidPluginFile
+import com.jetbrains.pluginverifier.tasks.checkPluginApi.SonarSourcePlugin
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -43,6 +45,23 @@ class PluginsParsing(
     val pluginsToCheckFile = opts.pluginsToCheckFile?.let { Paths.get(it) }
     if (pluginsToCheckFile != null) {
       addPluginsListedInFile(pluginsToCheckFile, listOf(version))
+    }
+    if (opts.pluginToCheckAllBuilds.isEmpty() && opts.pluginsToCheckFile.isNullOrEmpty() && opts.pluginsToCheckFile == null) {
+      // not checking any specific plugin
+      addSonarSourcePlugins()
+    }
+  }
+
+  private fun addSonarSourcePlugins() {
+    SonarSourcePlugin.values().forEach { plugin -> addSonarSourcePlugin(plugin) }
+  }
+
+  private fun addSonarSourcePlugin(plugin: SonarSourcePlugin) {
+    val selector = ExactVersionSelector(plugin.version)
+    val selectResult = selector.selectPluginVersion(plugin.key, pluginRepository)
+
+    if (selectResult is PluginVersionSelector.Result.Selected) {
+      pluginsSet.schedulePlugin(selectResult.pluginInfo)
     }
   }
 

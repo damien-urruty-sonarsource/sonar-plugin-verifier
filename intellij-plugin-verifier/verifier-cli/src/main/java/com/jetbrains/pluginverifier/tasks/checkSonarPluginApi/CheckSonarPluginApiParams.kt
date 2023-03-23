@@ -14,7 +14,7 @@ import com.jetbrains.pluginverifier.tasks.TaskParameters
 
 class CheckSonarPluginApiParams(
     val verificationTarget: PluginVerificationTarget.SonarPluginApi,
-    val verificationDescriptors: List<PluginVerificationDescriptor.IDE>,
+    val verificationDescriptors: List<PluginVerificationDescriptor.SonarPluginApi>,
     val problemsFilters: List<ProblemsFilter>,
     val missingCompatibleVersionsProblems: List<MissingCompatibleVersionProblem>,
     private val ideDescriptor: SonarPluginApiDescriptor,

@@ -125,7 +125,7 @@ class CheckTrunkApiParamsBuilder(
     }
     trunkPluginsSet.schedulePlugins(latestCompatibleVersions)
 
-    val releasePluginsToCheck = releasePluginsSet.pluginsToCheck.sortedBy { (it as PluginArtifact).updateId }
+    val releasePluginsToCheck = releasePluginsSet.pluginsToCheck.sortedBy { 0 }
     if (releasePluginsToCheck.isNotEmpty()) {
       reportage.logVerificationStage(
         "The following updates will be checked with both ${trunkIdeDescriptor.version} and #${releaseIdeDescriptor.version}:\n" +
@@ -149,7 +149,7 @@ class CheckTrunkApiParamsBuilder(
       externalClassesPackageFilter
     )
     val releaseVerificationDescriptors = releasePluginsSet.pluginsToCheck.map {
-      PluginVerificationDescriptor.IDE(releaseIdeDescriptor, releaseResolverProvider, it)
+      PluginVerificationDescriptor.SonarPluginApi(releaseIdeDescriptor, releaseResolverProvider, it)
     }
 
     val trunkFinder = createDependencyFinder(trunkIdeDescriptor.sonarPluginApi, releaseIdeDescriptor.sonarPluginApi, trunkLocalRepository, pluginDetailsCache)
@@ -159,7 +159,7 @@ class CheckTrunkApiParamsBuilder(
       externalClassesPackageFilter
     )
     val trunkVerificationDescriptors = trunkPluginsSet.pluginsToCheck.map {
-      PluginVerificationDescriptor.IDE(trunkIdeDescriptor, trunkResolverProvider, it)
+      PluginVerificationDescriptor.SonarPluginApi(trunkIdeDescriptor, trunkResolverProvider, it)
     }
 
     val releaseVerificationTarget = PluginVerificationTarget.SonarPluginApi(releaseIdeDescriptor.version, releaseIdeDescriptor.jdkVersion)

@@ -5,6 +5,7 @@
 package com.jetbrains.pluginverifier.dependencies.resolution
 
 import com.jetbrains.plugin.structure.ide.VersionComparatorUtil
+import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.pluginverifier.repository.PluginInfo
 import com.jetbrains.pluginverifier.repository.PluginRepository
 import com.jetbrains.pluginverifier.repository.repositories.artifactory.ArtifactoryRepository
@@ -13,10 +14,10 @@ import com.jetbrains.pluginverifier.repository.repositories.artifactory.PluginAr
 /**
  * [PluginVersionSelector] that selects the _last_ version of the plugin from the repository.
  */
-class LastVersionSelector : PluginVersionSelector {
+class ExactVersionSelector(private val version: Version) : PluginVersionSelector {
   override fun selectPluginVersion(pluginId: String, pluginRepository: PluginRepository): PluginVersionSelector.Result {
-    val allVersions = pluginRepository.getAllVersionsOfPlugin(pluginId)
-    return selectLastVersion(allVersions, pluginRepository, "Plugin $pluginId is not found in $pluginRepository")
+    val pluginInfo = pluginRepository.getPlugin(pluginId, version) ?: return PluginVersionSelector.Result.NotFound("Plugin $pluginId not found in the repository")
+    return PluginVersionSelector.Result.Selected(pluginInfo)
   }
 
   override fun selectPluginByModuleId(moduleId: String, pluginRepository: PluginRepository): PluginVersionSelector.Result {
@@ -30,7 +31,7 @@ class LastVersionSelector : PluginVersionSelector {
     notFoundMessage: String
   ): PluginVersionSelector.Result {
     val lastVersion = if (pluginRepository is ArtifactoryRepository) {
-      allVersions.maxByOrNull { 0 }
+      allVersions.maxByOrNull { it: PluginInfo -> 0 }
     } else {
       allVersions.maxWithOrNull(compareBy(VersionComparatorUtil.COMPARATOR) { it.version })
     }

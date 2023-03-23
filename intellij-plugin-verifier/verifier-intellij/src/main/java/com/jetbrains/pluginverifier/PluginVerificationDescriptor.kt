@@ -4,7 +4,6 @@
 
 package com.jetbrains.pluginverifier
 
-import com.jetbrains.plugin.structure.ide.SonarPluginApi
 import com.jetbrains.plugin.structure.intellij.version.Version
 import com.jetbrains.pluginverifier.ide.SonarPluginApiDescriptor
 import com.jetbrains.pluginverifier.jdk.JdkVersion
@@ -24,13 +23,13 @@ sealed class PluginVerificationDescriptor {
 
   abstract val presentableName: String
 
-  class IDE(
+  class SonarPluginApi(
       private val ideDescriptor: SonarPluginApiDescriptor,
       override val classResolverProvider: DefaultClassResolverProvider,
       override val checkedPlugin: PluginInfo
   ) : PluginVerificationDescriptor() {
 
-    val ide: SonarPluginApi
+    val sonarPluginApi: com.jetbrains.plugin.structure.ide.SonarPluginApi
       get() = ideDescriptor.sonarPluginApi
 
     val version: Version
@@ -57,12 +56,12 @@ sealed class PluginVerificationDescriptor {
 }
 
 fun PluginVerificationDescriptor.toTarget(): PluginVerificationTarget = when (this) {
-  is PluginVerificationDescriptor.IDE -> toTarget()
+  is PluginVerificationDescriptor.SonarPluginApi -> toTarget()
   is PluginVerificationDescriptor.Plugin -> toTarget()
 }
 
 fun PluginVerificationDescriptor.Plugin.toTarget(): PluginVerificationTarget.Plugin =
   PluginVerificationTarget.Plugin(apiPlugin, jdkVersion)
 
-fun PluginVerificationDescriptor.IDE.toTarget(): PluginVerificationTarget.SonarPluginApi =
+fun PluginVerificationDescriptor.SonarPluginApi.toTarget(): PluginVerificationTarget.SonarPluginApi =
   PluginVerificationTarget.SonarPluginApi(version, jdkVersion)

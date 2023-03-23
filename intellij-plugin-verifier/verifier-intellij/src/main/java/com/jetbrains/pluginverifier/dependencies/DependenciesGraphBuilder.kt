@@ -33,8 +33,8 @@ class DependenciesGraphBuilder(private val dependencyFinder: DependencyFinder) {
     val start = DepVertex(plugin, DependencyFinder.Result.FoundPlugin(plugin))
     addTransitiveDependencies(graph, start, missingDependencies)
     if (plugin.pluginId != CORE_IDE_PLUGIN_ID) {
-      maybeAddOptionalJavaPluginDependency(plugin, ide, graph, missingDependencies)
-      maybeAddBundledPluginsWithUseIdeaClassLoader(ide, graph, missingDependencies)
+//      maybeAddOptionalJavaPluginDependency(plugin, ide, graph, missingDependencies)
+//      maybeAddBundledPluginsWithUseIdeaClassLoader(ide, graph, missingDependencies)
     }
 
     val dependenciesGraph = DepGraph2ApiGraphConverter().convert(graph, start, missingDependencies)

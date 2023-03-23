@@ -66,7 +66,7 @@ class CheckPluginParamsBuilder(
       )
 
       pluginsSet.pluginsToCheck.map {
-        PluginVerificationDescriptor.IDE(sonarPluginApiDescriptor, classResolverProvider, it)
+        PluginVerificationDescriptor.SonarPluginApi(sonarPluginApiDescriptor, classResolverProvider, it)
       }
     }
 

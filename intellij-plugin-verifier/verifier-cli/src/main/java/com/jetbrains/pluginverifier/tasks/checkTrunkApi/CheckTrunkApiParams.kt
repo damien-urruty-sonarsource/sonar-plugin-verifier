@@ -18,8 +18,8 @@ class CheckTrunkApiParams(
     private val releaseIde: SonarPluginApiDescriptor,
     private val releaseIdeFile: FileLock,
     val problemsFilters: List<ProblemsFilter>,
-    val releaseVerificationDescriptors: List<PluginVerificationDescriptor.IDE>,
-    val trunkVerificationDescriptors: List<PluginVerificationDescriptor.IDE>,
+    val releaseVerificationDescriptors: List<PluginVerificationDescriptor.SonarPluginApi>,
+    val trunkVerificationDescriptors: List<PluginVerificationDescriptor.SonarPluginApi>,
     val releaseVerificationTarget: PluginVerificationTarget.SonarPluginApi,
     val trunkVerificationTarget: PluginVerificationTarget.SonarPluginApi,
     val excludeExternalBuildClassesSelector: Boolean

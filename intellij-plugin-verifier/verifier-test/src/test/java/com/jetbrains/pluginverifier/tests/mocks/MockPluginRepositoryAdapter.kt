@@ -6,7 +6,7 @@ import com.jetbrains.pluginverifier.repository.PluginRepository
 
 open class MockPluginRepositoryAdapter : PluginRepository {
 
-  override fun getLastCompatiblePlugins(Version: Version): List<PluginInfo> = defaultAction()
+  override fun getLastCompatiblePlugins(version: Version): List<PluginInfo> = defaultAction()
 
   override fun getLastCompatibleVersionOfPlugin(Version: Version, pluginId: String): PluginInfo? = defaultAction()
 

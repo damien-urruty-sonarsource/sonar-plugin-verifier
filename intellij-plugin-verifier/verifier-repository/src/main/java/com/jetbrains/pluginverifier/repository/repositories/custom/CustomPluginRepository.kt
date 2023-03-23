@@ -25,7 +25,7 @@ abstract class CustomPluginRepository : PluginRepository {
 
   fun getAllPlugins(): List<CustomPluginInfo> = allPluginsCache.get()
 
-  override fun getLastCompatiblePlugins(Version: Version) =
+  override fun getLastCompatiblePlugins(version: Version) =
     getAllPlugins()
 
   override fun getLastCompatibleVersionOfPlugin(Version: Version, pluginId: String) =

@@ -325,8 +325,7 @@ class TwoTargetsResultPrinter : TaskResultPrinter {
 
   private fun PluginInfo.getFullPluginCoordinates(): String {
     val browserUrl = (this as? Browseable)?.browserUrl?.let { " $it" }.orEmpty()
-    val updateId = (this as? PluginArtifact)?.updateId?.let { " (#$it)" }.orEmpty()
-    return "$pluginId:$version$updateId$browserUrl"
+    return "$pluginId:$version$browserUrl"
   }
 
   private fun DependenciesGraph.getResolvedDependency(dependency: PluginDependency) =

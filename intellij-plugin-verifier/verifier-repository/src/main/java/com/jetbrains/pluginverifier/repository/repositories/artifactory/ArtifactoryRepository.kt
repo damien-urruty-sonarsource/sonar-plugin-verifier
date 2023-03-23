@@ -16,15 +16,11 @@ import org.jetbrains.intellij.pluginRepository.model.UpdateId
 import java.net.MalformedURLException
 import java.net.URL
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
-class ArtifactoryRepository(val repositoryURL: URL = DEFAULT_URL) : PluginRepository {
+class ArtifactoryRepository(private val repositoryURL: URL = DEFAULT_URL) : PluginRepository {
 
   private val pluginRepositoryInstance = PluginRepositoryFactory.create(host = repositoryURL.toExternalForm())
-
-  //This mapping never changes. Updates in Marketplace repository have constant plugin ID.
-  private val updateIdToPluginIdMapping = ConcurrentHashMap<Int, Int>()
 
   private val metadataCache: LoadingCache<Pair<PluginId, UpdateId>, Optional<PluginArtifact>> = CacheBuilder.newBuilder()
     .expireAfterWrite(5, TimeUnit.MINUTES)
@@ -34,6 +30,14 @@ class ArtifactoryRepository(val repositoryURL: URL = DEFAULT_URL) : PluginReposi
         return Optional.empty()
       }
     })
+
+  override fun getPlugin(key: String, version: Version): PluginArtifact {
+    val versionString = version.asString()
+
+    val jarUrl =
+      URL("${repositoryURL}download?repoKey=sonarsource-public-releases&path=org%252Fsonarsource%252F$key%252Fsonar-$key-plugin%252F$versionString%252Fsonar-$key-plugin-$versionString.jar")
+    return PluginArtifact(key, key, version.asString(), null, null, "SonarSource", null, jarUrl, jarUrl, emptyList())
+  }
 
   override fun getLastCompatiblePlugins(version: Version): List<PluginArtifact> =
     getLastCompatiblePlugins(version, "")
@@ -78,28 +82,11 @@ class ArtifactoryRepository(val repositoryURL: URL = DEFAULT_URL) : PluginReposi
       metadata.vendor,
       parseSourceCodeUrl(metadata.sourceCodeUrl),
       getDownloadUrl(metadata.id),
-      metadata.id,
       getBrowserUrl(pluginId),
       metadata.tags,
-      pluginId
     )
-    updateIdToPluginIdMapping[updateInfo.updateId] = pluginId
-    metadataCache.put(updateInfo.pluginIntId to updateInfo.updateId, Optional.of(updateInfo))
+//    metadataCache.put(updateInfo.pluginIntId to updateInfo.updateId, Optional.of(updateInfo))
     return updateInfo
-  }
-
-  private fun getPluginIntIdByUpdateId(updateId: Int): Int? {
-    updateIdToPluginIdMapping[updateId]?.let { return it }
-
-    val pluginUpdateBean = pluginRepositoryInstance.pluginUpdateManager.getUpdateById(updateId) ?: return null
-    val pluginId = pluginUpdateBean.pluginId
-    updateIdToPluginIdMapping[updateId] = pluginId
-    return pluginId
-  }
-
-  fun getPluginInfoByUpdateId(updateId: Int): PluginArtifact? {
-    val pluginId = getPluginIntIdByUpdateId(updateId) ?: return null
-    return getOrRequestInfo(pluginId, updateId)
   }
 
   private fun getCachedInfo(pluginId: Int, updateId: Int): PluginArtifact? {
@@ -119,23 +106,6 @@ class ArtifactoryRepository(val repositoryURL: URL = DEFAULT_URL) : PluginReposi
     val updateMetadata = pluginRepositoryInstance.pluginUpdateManager.getIntellijUpdateMetadata(pluginId, updateId)
       ?: return null
     return createAndCacheUpdateInfo(updateMetadata, pluginId)
-  }
-
-  @Suppress("unused") //Used in API Watcher.
-  fun getPluginInfosForManyUpdateIds(updateIds: List<Int>): Map<Int, PluginArtifact> {
-    val pluginAndUpdateIds = arrayListOf<Pair<PluginId, UpdateId>>()
-    for (updateId in updateIds) {
-      val pluginId = getPluginIntIdByUpdateId(updateId)
-      if (pluginId != null) {
-        pluginAndUpdateIds += pluginId to updateId
-      }
-    }
-    return getPluginInfosForManyPluginIdsAndUpdateIds(pluginAndUpdateIds)
-  }
-
-  fun getPluginChannels(pluginId: String): List<String> {
-    val pluginBean = pluginRepositoryInstance.pluginManager.getPluginByXmlId(pluginId) ?: return emptyList()
-    return pluginRepositoryInstance.pluginManager.getPluginChannels(pluginBean.id)
   }
 
   fun getPluginInfosForManyPluginIdsAndUpdateIds(pluginAndUpdateIds: List<Pair<Int, Int>>): Map<Int, PluginArtifact> {
@@ -188,8 +158,8 @@ class ArtifactoryRepository(val repositoryURL: URL = DEFAULT_URL) : PluginReposi
     get() = "Repox ${repositoryURL.toExternalForm()}"
 
   override fun toString() = presentableName
-  private companion object {
+  companion object {
 
-    private val DEFAULT_URL = URL("https://plugins.jetbrains.com")
+    val DEFAULT_URL = URL("https://repox.jfrog.io/ui/api/v1/")
   }
 }

@@ -71,7 +71,7 @@ object PluginVerifierMain {
 
   private val pluginRepositoryUrl: String by lazy {
     System.getProperty("plugin.repository.url")?.trimEnd('/')
-      ?: "https://plugins.jetbrains.com"
+      ?: ArtifactoryRepository.DEFAULT_URL.toString()
   }
 
   private val downloadDirectory: Path = verifierHomeDirectory.resolve("loaded-plugins").createDir()

@@ -30,7 +30,7 @@ class TeamCityResultPrinterTest {
       val pluginInfos: List<PluginInfo>
         get() = listOf(first, second)
 
-      override fun getLastCompatiblePlugins(Version: Version): List<PluginInfo> = pluginInfos
+      override fun getLastCompatiblePlugins(version: Version): List<PluginInfo> = pluginInfos
 
       override fun getLastCompatibleVersionOfPlugin(Version: Version, pluginId: String): PluginInfo? =
         second.takeIf { pluginId == it.pluginId }

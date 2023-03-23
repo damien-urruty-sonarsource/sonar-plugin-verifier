@@ -33,28 +33,28 @@ class CheckSonarPluginApiParamsBuilder(
         "\n" +
         "By default all open-source SonarSource plugins will be checked against the given sonar-plugin-api file or version from Repox"
     }
-    OptionsParser.createSonarPluginApiDescriptor(freeArgs[0], opts).closeOnException { ideDescriptor: SonarPluginApiDescriptor ->
+    OptionsParser.createSonarPluginApiDescriptor(freeArgs[0], opts).closeOnException { sonarPluginApiDescriptor: SonarPluginApiDescriptor ->
       val externalClassesPackageFilter = OptionsParser.getExternalClassesPackageFilter(opts)
       val problemsFilters = OptionsParser.getProblemsFilters(opts)
 
       val pluginsSet = PluginsSet()
-      PluginsParsing(pluginRepository, reportage, pluginsSet).addPluginsFromCmdOpts(opts, ideDescriptor.version)
+      PluginsParsing(pluginRepository, reportage, pluginsSet).addPluginsFromCmdOpts(opts, sonarPluginApiDescriptor.version)
 
-      val missingCompatibleVersionsProblems = findMissingCompatibleVersionsProblems(ideDescriptor.version, pluginsSet)
+      val missingCompatibleVersionsProblems = findMissingCompatibleVersionsProblems(sonarPluginApiDescriptor.version, pluginsSet)
 
-      val dependencyFinder = createIdeBundledOrPluginRepositoryDependencyFinder(ideDescriptor.sonarPluginApi, pluginRepository, pluginDetailsCache)
+      val dependencyFinder = createIdeBundledOrPluginRepositoryDependencyFinder(sonarPluginApiDescriptor.sonarPluginApi, pluginRepository, pluginDetailsCache)
 
       val classResolverProvider = DefaultClassResolverProvider(
         dependencyFinder,
-        ideDescriptor,
+        sonarPluginApiDescriptor,
         externalClassesPackageFilter
       )
 
       val verificationDescriptors = pluginsSet.pluginsToCheck.map {
-        PluginVerificationDescriptor.IDE(ideDescriptor, classResolverProvider, it)
+        PluginVerificationDescriptor.SonarPluginApi(sonarPluginApiDescriptor, classResolverProvider, it)
       }
 
-      val verificationTarget = PluginVerificationTarget.SonarPluginApi(ideDescriptor.version, ideDescriptor.jdkVersion)
+      val verificationTarget = PluginVerificationTarget.SonarPluginApi(sonarPluginApiDescriptor.version, sonarPluginApiDescriptor.jdkVersion)
       pluginsSet.ignoredPlugins.forEach { (plugin, reason) ->
         reportage.logPluginVerificationIgnored(plugin, verificationTarget, reason)
       }
@@ -64,7 +64,7 @@ class CheckSonarPluginApiParamsBuilder(
         verificationDescriptors,
         problemsFilters,
         missingCompatibleVersionsProblems,
-        ideDescriptor,
+        sonarPluginApiDescriptor,
         opts.excludeExternalBuildClassesSelector
       )
     }

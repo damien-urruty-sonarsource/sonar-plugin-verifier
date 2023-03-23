@@ -18,7 +18,7 @@ object DynamicPlugins {
   fun getDynamicPluginStatus(context: PluginVerificationContext): DynamicPluginStatus? {
     val verificationDescriptor = context.verificationDescriptor
     val idePlugin = context.idePlugin
-    if (verificationDescriptor is PluginVerificationDescriptor.IDE && idePlugin is IdePluginImpl) {
+    if (verificationDescriptor is PluginVerificationDescriptor.SonarPluginApi && idePlugin is IdePluginImpl) {
       val reasonsNotToLoadUnloadWithoutRestart = hashSetOf<String>()
 
       listOf(

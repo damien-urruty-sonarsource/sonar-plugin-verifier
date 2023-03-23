@@ -19,7 +19,14 @@ interface PluginRepository {
   /**
    * Returns the latest plugins' versions compatible with [Version].
    */
-  fun getLastCompatiblePlugins(Version: Version): List<PluginInfo>
+  fun getPlugin(key: String, version: Version): PluginInfo? {
+    return null
+  }
+
+  /**
+   * Returns the latest plugins' versions compatible with [version].
+   */
+  fun getLastCompatiblePlugins(version: Version): List<PluginInfo>
 
   /**
    * Returns the last version of the plugin with ID equal to [pluginId]

@@ -291,7 +291,7 @@ class TeamCityResultPrinter(
     val plugins = runCatching { repository.getLastCompatiblePlugins(Version) }.getOrDefault(emptyList())
     return plugins.groupBy { it.pluginId }.mapValues { (_, sameIdPlugins) ->
       if (repository is ArtifactoryRepository) {
-        sameIdPlugins.maxByOrNull { (it as PluginArtifact).updateId }
+        sameIdPlugins.maxByOrNull { 0 }
       } else {
         sameIdPlugins.maxWithOrNull(compareBy(VersionComparatorUtil.COMPARATOR) { it.version })
       }

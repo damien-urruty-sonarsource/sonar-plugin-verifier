@@ -70,7 +70,7 @@ class PluginFilesBank(
     }
 
     private fun getFileNameForArtifactoryPlugin(pluginInfo: PluginArtifact): String =
-      "${pluginInfo.pluginIntId}_${pluginInfo.updateId}"
+      "${pluginInfo.pluginId}_${pluginInfo.version}"
 
     private fun getPluginIdAndUpdateIdByPath(path: Path): Pair<Int, Int>? {
       val fileName = path.nameWithoutExtension

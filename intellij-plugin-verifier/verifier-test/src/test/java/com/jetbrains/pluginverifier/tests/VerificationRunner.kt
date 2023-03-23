@@ -44,7 +44,7 @@ class VerificationRunner {
         ideDescriptor,
         externalClassesPackageFilter
       )
-      val verificationDescriptor = PluginVerificationDescriptor.IDE(ideDescriptor, classResolverProvider, LocalPluginInfo(idePlugin))
+      val verificationDescriptor = PluginVerificationDescriptor.SonarPluginApi(ideDescriptor, classResolverProvider, LocalPluginInfo(idePlugin))
 
       val pluginVerifier = PluginVerifier(
         verificationDescriptor,
